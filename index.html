@@ -166,6 +166,26 @@
   .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
   @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(3){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}}
 
+
+  /* ---------- newest releases ticker ---------- */
+  .ticker{align-self:stretch;margin:-62px -20px 6px;position:relative;overflow:hidden;border-block:1px solid #0d2224;background:#020607cc;
+          -webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+  .ticker .lbl{position:absolute;left:0;top:0;bottom:0;z-index:2;display:flex;align-items:center;padding:0 14px 0 clamp(16px,4vw,48px);
+          font:600 10px var(--mono);letter-spacing:.18em;color:var(--cyan);background:linear-gradient(90deg,#000 70%,transparent)}
+  .track{display:flex;gap:12px;width:max-content;padding:10px 0;animation:marquee var(--dur,40s) linear infinite}
+  .ticker:hover .track{animation-play-state:paused}
+  @keyframes marquee{to{transform:translateX(-50%)}}
+  .tk{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border:1px solid #143235;background:var(--panel);color:var(--text);
+      text-align:left;white-space:nowrap;transition:border-color .2s, box-shadow .2s}
+  .tk:hover{border-color:var(--cyan);box-shadow:0 0 18px #00f6ff33}
+  .tk img{width:64px;height:40px;object-fit:cover;object-position:left top;background:#000}
+  .tk img.px{image-rendering:pixelated;object-position:center}
+  .tk b{display:block;font:700 13px var(--mono);letter-spacing:.06em}
+  .tk small{display:block;font:11px var(--mono);color:var(--muted);letter-spacing:.06em}
+  .tk small i{font-style:normal;color:#000;background:var(--cyan);padding:0 5px;margin-right:6px}
+  .card.flash{animation:flash 1.6s ease-out}
+  @keyframes flash{0%{box-shadow:0 0 0 2px var(--cyan),0 0 60px #00f6ffaa}100%{box-shadow:0 0 0 0 transparent}}
+  @media (max-width:700px){.ticker{margin:-22px -20px 4px}.ticker .lbl{display:none}}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -216,6 +236,7 @@
 </nav>
 
 <header class="hero" id="top">
+  <div class="ticker" id="ticker" hidden><div class="track" id="track"></div></div>
   <div class="scopewrap"><div class="glow"></div><canvas id="scope" aria-hidden="true"></canvas></div>
   <h1 id="logo" aria-label="SWTDR34MZ"><span class="lm"></span></h1>
   <div class="term" id="term" aria-label="Free synths. Press start.">
@@ -816,6 +837,43 @@
   /* Fills in the newest version of every project from releases.json,
      which a GitHub Action refreshes every hour. */
   const NEW_DAYS = 7;
+  /* newest releases, running along the top of the page */
+  function buildTicker(data) {
+    const seen = new Map();
+    for (const sec of ['vst', 'mpc', 'fm1']) {
+      document.querySelectorAll('#' + sec + ' article.card').forEach(card => {
+        const repo = card.dataset.repo, rel = data.repos[repo];
+        if (!rel || !rel.date) return;
+        if (!card.id) card.id = sec + '-' + repo.toLowerCase();
+        const label = {vst: 'VST', mpc: 'MPC', fm1: 'FM-1'}[sec];
+        if (seen.has(repo)) { seen.get(repo).tags.push(label); return; }
+        const h = card.querySelector('h3');
+        const name = h ? h.firstChild.textContent.trim() : repo;
+        const img = card.querySelector('.shot img');
+        seen.set(repo, {repo, name, tags: [label], tag: rel.tag, date: Date.parse(rel.date),
+          src: img ? img.getAttribute('src') : '', px: sec === 'fm1', target: card.id});
+      });
+    }
+    const list = [...seen.values()].sort((a, b) => b.date - a.date).slice(0, 10);
+    if (list.length < 3) return;
+    const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const item = it => `<a class="tk" href="#${esc(it.target)}" data-t="${esc(it.target)}">
+        <img src="${esc(it.src)}" alt="" class="${it.px ? 'px' : ''}" loading="lazy">
+        <span><b>${esc(it.name)}</b><small>${(Date.now() - it.date) / 864e5 < 7 ? '<i>NEW</i>' : ''}${esc(it.tags.join(' · '))} · ${esc(it.tag)}</small></span></a>`;
+    const html = list.map(item).join('');
+    const track = document.getElementById('track');
+    track.innerHTML = html + html;              // twice, so the loop has no seam
+    track.style.setProperty('--dur', list.length * 5 + 's');
+    document.getElementById('ticker').hidden = false;
+    track.addEventListener('click', e => {
+      const a = e.target.closest('.tk'); if (!a) return;
+      e.preventDefault();
+      const card = document.getElementById(a.dataset.t); if (!card) return;
+      card.classList.add('in');
+      card.scrollIntoView({behavior: 'smooth', block: 'center'});
+      card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+    });
+  }
   fetch('releases.json', {cache: 'no-store'})
     .then(r => r.ok ? r.json() : null)
     .then(data => {
@@ -850,6 +908,7 @@
              .sort((a, b) => (b[1] - a[1]) || (a[2] - b[2]))
              .forEach(([c]) => grid.append(c));
       }
+      buildTicker(data);
     })
     .catch(() => {});
 }
