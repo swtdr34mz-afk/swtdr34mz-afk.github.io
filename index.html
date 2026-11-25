@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SWTDR34MZ — synth plugins &amp; FM-1 mods</title>
+<meta name="description" content="Free synth plugins (VST3 / AU / MPC) and mods for the M-VAVE FM-1 by swtdr34mz.">
+<link rel="icon" href="img/favicon.png">
+<meta property="og:title" content="SWTDR34MZ — synth plugins & FM-1 mods">
+<meta property="og:description" content="Free synth plugins (VST3 / AU / MPC) and mods for the M-VAVE FM-1.">
+<meta property="og:image" content="img/logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000;
+    --panel:#05090a;
+    --line:#123033;
+    --axis:#2b2b2b;
+    --cyan:#00f6ff;
+    --cyan-dim:#00f6ff33;
+    --text:#d9fbfc;
+    --muted:#7a9799;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--cyan);text-decoration:none}
+  img{display:block;max-width:100%}
+
+  /* ---------- nav ---------- */
+  nav{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:14px clamp(16px,4vw,48px);background:#000c;backdrop-filter:blur(10px);border-bottom:1px solid #0d1d1f}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:800;letter-spacing:.18em;color:var(--text);font-size:14px}
+  .brand img{width:28px;height:28px;border-radius:50%;mix-blend-mode:screen}
+  nav ul{display:flex;gap:clamp(12px,3vw,32px);list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  nav ul a{color:var(--muted);transition:color .2s}
+  nav ul a:hover{color:var(--cyan)}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;min-height:86vh;display:grid;place-items:center;overflow:hidden;padding:80px 20px 60px;text-align:center}
+  .hero::before,.hero::after{content:"";position:absolute;background:var(--axis);pointer-events:none}
+  .hero::before{left:0;right:0;top:50%;height:1px}
+  .hero::after{top:0;bottom:0;left:50%;width:1px}
+  .hero .glow{position:absolute;inset:0;margin:auto;width:min(700px,110vw);aspect-ratio:1;border-radius:50%;
+         background:radial-gradient(closest-side,#00f6ff26,transparent 70%);pointer-events:none}
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.035);opacity:1}}
+  .hero-text{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px}
+  .hero h1{margin:0;font-family:var(--mono);font-weight:800;font-size:clamp(40px,9vw,112px);letter-spacing:.08em;line-height:1;
+           color:#fff;text-shadow:0 0 18px #00f6ffaa,0 0 60px #00f6ff66;mix-blend-mode:normal}
+  .hero p{margin:0;max-width:520px;font-size:clamp(16px,2.2vw,20px);color:#e9feff;text-shadow:0 1px 12px #000}
+  .cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
+
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border:1px solid var(--cyan);border-radius:2px;
+       font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;transition:all .2s}
+  .btn.solid{background:var(--cyan);color:#000}
+  .btn.solid:hover{box-shadow:0 0 24px #00f6ffaa}
+  .btn.ghost{background:#000a;color:var(--cyan)}
+  .btn.ghost:hover{background:var(--cyan-dim)}
+  .btn.off{border-color:#2a3a3b;color:var(--muted);pointer-events:none}
+
+  /* ---------- sections ---------- */
+  section{padding:clamp(56px,9vw,110px) clamp(16px,4vw,48px);max-width:1240px;margin:0 auto}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:36px;border-bottom:1px solid var(--line);padding-bottom:14px}
+  .sec-head .idx{font-family:var(--mono);color:var(--cyan);font-size:13px;letter-spacing:.2em}
+  .sec-head h2{margin:0;font-family:var(--mono);font-size:clamp(24px,4vw,38px);letter-spacing:.06em;font-weight:800}
+  .sec-head p{margin:0 0 0 auto;color:var(--muted);font-size:14px;max-width:380px;text-align:right}
+
+  .grid{display:grid;gap:22px}
+  .grid.plugins{grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr))}
+  .grid.fw{grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+  .ver.new{color:#000;background:var(--cyan);border-color:var(--cyan);margin-left:auto}
+  .body h3 .vers{display:flex;gap:6px}
+  .note{font-size:13px;color:#9fc9cb}
+  .mpc .shot img{object-position:right top}
+
+  .card{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);
+        transition:border-color .25s, box-shadow .25s, transform .25s}
+  .card:hover{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan-dim),0 0 40px #00f6ff1f;transform:translateY(-2px)}
+  .shot{position:relative;overflow:hidden;background:#000;border-bottom:1px solid var(--line)}
+  .plugins .shot{aspect-ratio:16/9}
+  .plugins .shot img{width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .6s}
+  .card:hover .shot img{transform:scale(1.03)}
+  .fw .shot{aspect-ratio:1}
+  .fw .shot img{width:100%;height:100%;image-rendering:pixelated;object-fit:cover}
+  .body h3{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .ver{font-family:var(--mono);font-size:11px;font-weight:400;letter-spacing:.04em;padding:2px 7px;color:var(--cyan);border:1px solid var(--cyan-dim);white-space:nowrap}
+  .ver.soon{color:#ffd36b;border-color:#ffd36b55}
+  .shot.blank{display:grid;place-items:center;background:
+     linear-gradient(var(--axis),var(--axis)) center/100% 1px no-repeat,
+     linear-gradient(var(--axis),var(--axis)) center/1px 100% no-repeat,
+     radial-gradient(circle at 50% 50%,#00f6ff22,transparent 60%),#000}
+  .shot.blank span{font-family:var(--mono);font-weight:800;font-size:42px;letter-spacing:.14em;color:#fff;text-shadow:0 0 22px #00f6ffaa}
+
+  .body{display:flex;flex-direction:column;gap:12px;padding:18px 18px 20px;flex:1}
+  .body h3{margin:0;font-family:var(--mono);font-size:20px;letter-spacing:.06em}
+  .fw .body h3{font-size:17px}
+  .body p{margin:0;color:var(--muted);font-size:14.5px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tags span{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:3px 7px;border:1px solid #1d4246;color:#9fe9ec}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:6px}
+  .actions .btn{padding:9px 13px;font-size:11px}
+
+  /* ---------- install ---------- */
+  .install{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+  .box{border:1px solid var(--line);background:var(--panel);padding:24px}
+  .box h3{margin:0 0 14px;font-family:var(--mono);font-size:15px;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase}
+  .box ol{margin:0;padding-left:20px;color:#bfdfe0;font-size:14.5px}
+  .box li{margin:6px 0}
+  code{font-family:var(--mono);font-size:12.5px;background:#0b1718;border:1px solid #12292b;padding:1px 6px;color:#c9fdff;word-break:break-all}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid #0d1d1f;padding:44px clamp(16px,4vw,48px) 60px;text-align:center;color:var(--muted);font-size:13px}
+  footer .tag{width:min(320px,70vw);margin:0 auto 20px;opacity:.85}
+  footer p{max-width:720px;margin:8px auto}
+
+  @media (max-width:640px){
+    nav ul{display:none}
+    .sec-head{flex-wrap:wrap}
+    .sec-head p{margin:0;text-align:left}
+    .grid.plugins{grid-template-columns:1fr}
+  }
+
+  /* live scope */
+  #scope{position:absolute;inset:0;margin:auto;width:min(640px,96vw);aspect-ratio:1;z-index:1}
+
+  /* progress bar */
+  #prog{position:fixed;left:0;top:0;height:2px;width:0;background:var(--cyan);box-shadow:0 0 8px var(--cyan);z-index:20}
+
+  /* new here */
+  .what{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:22px}
+  .what .box p{margin:0 0 10px;color:#bfdfe0;font-size:15px}
+  .what .box p:last-child{margin:0}
+  .what .box .big{font:800 44px/1 var(--mono);color:var(--cyan);margin-bottom:14px;text-shadow:0 0 18px #00f6ff66}
+  .what .box a{border-bottom:1px solid #00f6ff55}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:22px;border:1px solid var(--line);background:var(--panel)}
+  .stats div{padding:22px 10px;text-align:center;border-left:1px solid var(--line)}
+  .stats div:first-child{border-left:0}
+  .stats b{display:block;font:800 clamp(28px,5vw,48px)/1 var(--mono);color:#fff;text-shadow:0 0 16px #00f6ff88}
+  .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+  @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(3){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}}
+
+  /* wave under section titles */
+  .wave{display:block;width:100%;height:18px;margin:-30px 0 30px;opacity:.7}
+  .wave path{fill:none;stroke:var(--cyan);stroke-width:1.2;stroke-dasharray:6 4;animation:flow 3s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-60}}
+
+  /* reveal on scroll */
+  .rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)}
+  .rv.in{opacity:1;transform:none}
+
+  /* CRT sweep on FM-1 screens */
+  .fw .shot::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+    background:linear-gradient(180deg,transparent 0,#00f6ff22 48%,#00f6ff55 50%,transparent 52%) 0 -100%/100% 200% no-repeat,
+               repeating-linear-gradient(0deg,#0000 0 2px,#00000040 2px 3px)}
+  .fw .card:hover .shot::after{opacity:1;animation:sweep 1.6s linear infinite}
+  @keyframes sweep{to{background-position:0 100%,0 0}}
+
+  @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.wave path,.hint,.fw .card:hover .shot::after{animation:none}}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="#top"><img src="img/logo.jpg" alt="">SWTDR34MZ</a>
+  <ul>
+    <li><a href="#what">About</a></li>
+    <li><a href="#vst">VST</a></li>
+    <li><a href="#mpc">MPC</a></li>
+    <li><a href="#fm1">FM-1</a></li>
+    <li><a href="#install">Install</a></li>
+    <li><a href="https://github.com/swtdr34mz-afk" target="_blank" rel="noopener">GitHub</a></li>
+  </ul>
+</nav>
+
+<header class="hero" id="top">
+  <div class="glow"></div>
+  <canvas id="scope" aria-hidden="true"></canvas>
+  <div class="hero-text">
+    <h1>SWTDR34MZ</h1>
+    <p>Synth plugins for your DAW and your MPC, and mods for the M-VAVE FM-1. Free to download, made for playing.</p>
+    <div class="cta">
+      <a class="btn solid" href="#vst">VST Plugins</a>
+      <a class="btn ghost" href="#mpc">MPC</a>
+      <a class="btn ghost" href="#fm1">FM-1 Mods</a>
+    </div>
+  </div>
+</header>
+<div id="prog"></div>
+
+<section id="what">
+  <div class="sec-head">
+    <span class="idx">00</span><h2>NEW HERE?</h2>
+    <p>Three kinds of instruments, all free. Here is what they are.</p>
+  </div>
+  <div class="what">
+    <div class="box">
+      <div class="big">VST</div>
+      <h3>For your computer</h3>
+      <p>A software instrument that runs inside your music program: Cubase, Ableton, FL Studio, Logic and so on. Put it on a track and play it with a MIDI keyboard, or draw the notes in.</p>
+      <p>No music program? Every plugin also comes as a <b>standalone app</b>. Plug in a keyboard and play.</p>
+    </div>
+    <div class="box">
+      <div class="big">MPC</div>
+      <h3>For your groovebox</h3>
+      <p>The same instruments on Akai's standalone MPCs. They run right on the device, no computer needed.</p>
+      <p>Load them like any other MPC plugin and sequence them with your beats.</p>
+    </div>
+    <div class="box">
+      <div class="big">FM-1</div>
+      <h3>For a tiny keyboard</h3>
+      <p>The M-VAVE FM-1 is a small, cheap keyboard synth. Its sound comes from firmware you can swap, and each mod here turns it into a completely different instrument: a drone machine, a drum computer, an arcade game you play with chords.</p>
+      <p>Don't own one? Some of them <a href="#fm1">run in your browser</a>.</p>
+    </div>
+  </div>
+  <div class="stats">
+    <div><b data-count="4">4</b><span>VST plugins</span></div>
+    <div><b data-count="2">2</b><span>MPC plugins</span></div>
+    <div><b data-count="8">8</b><span>FM-1 mods</span></div>
+    <div><b>0 €</b><span>Everything free</span></div>
+  </div>
+</section>
+
+<section id="vst">
+  <div class="sec-head">
+    <span class="idx">01</span><h2>VST PLUGINS</h2>
+    <p>VST3 for Windows and Mac, AU for Logic and GarageBand, and a standalone app.</p>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9 T 450 9 T 500 9 T 550 9 T 600 9 T 650 9 T 700 9 T 750 9 T 800 9 T 850 9 T 900 9 T 950 9 T 1000 9 T 1050 9 T 1100 9 T 1150 9 T 1200 9"/></svg>
+  <div class="grid plugins">
+    <article class="card" data-repo="PROPHET-67-VST">
+      <div class="shot"><img src="img/prophet-67-vst.jpg" alt="PROPHET 67 plugin panel" loading="lazy"></div>
+      <div class="body">
+        <h3>PROPHET 67<span class="vers"><span class="ver" data-ver>v1.0.4</span></span></h3>
+        <p>Seven-voice analogue-style polysynth with Poly Mod, Vintage, Voice Spread and big reverbs with shimmer and swell. The same engine as the FM-1 mod, so a patch sounds the same on both.</p>
+        <div class="tags"><span>VST3</span><span>AU</span><span>STANDALONE</span><span>WIN</span><span>MAC</span></div>
+        <div class="actions">
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/PROPHET-67-VST/releases/latest/download/PROPHET67-Windows.zip" target="_blank" rel="noopener">↓ Windows</a>
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/PROPHET-67-VST/releases/latest/download/PROPHET67-macOS.zip" target="_blank" rel="noopener">↓ Mac</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/PROPHET-67-VST" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="ARIA">
+      <div class="shot"><img src="img/aria.jpg" alt="ARIA plugin panel" loading="lazy"></div>
+      <div class="body">
+        <h3>ARIA<span class="vers"><span class="ver" data-ver>v1.3.2</span></span></h3>
+        <p>Eight-voice, bi-timbral polysynth: two oscillators with a continuous wave mix, two ladder filters, a chord memory with KEY mode and eight key maps, and a diffusion delay.</p>
+        <div class="tags"><span>VST3</span><span>STANDALONE</span><span>WIN</span><span>MAC</span></div>
+        <div class="actions">
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/ARIA/releases/latest/download/ARIA-Windows.zip" target="_blank" rel="noopener">↓ Windows</a>
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/ARIA/releases/latest/download/ARIA-macOS.zip" target="_blank" rel="noopener">↓ Mac</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/ARIA" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="SOLARIS-23">
+      <div class="shot"><img src="img/solaris-23.jpg" alt="SOLARIS-23 plugin panel" loading="lazy"></div>
+      <div class="body">
+        <h3>SOLARIS-23<span class="vers"><span class="ver" data-ver>v1.2.1</span></span></h3>
+        <p>Microtonal drone and ambient machine. Eight voices, free tuning without a semitone grid, a dual filter, distortion and a dual effector. Made for long, slowly moving sounds.</p>
+        <div class="tags"><span>VST3</span><span>AU</span><span>STANDALONE</span><span>WIN</span><span>MAC</span></div>
+        <div class="actions">
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/SOLARIS-23/releases/latest/download/SOLARIS23-Windows.zip" target="_blank" rel="noopener">↓ Windows</a>
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/SOLARIS-23/releases/latest/download/SOLARIS23-macOS.zip" target="_blank" rel="noopener">↓ Mac</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/SOLARIS-23" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="NIQUE-D0">
+      <div class="shot"><img src="img/nique-d0.jpg" alt="NIQUE D0 plugin panel" loading="lazy"></div>
+      <div class="body">
+        <h3>NIQUE D0<span class="vers"><span class="ver" data-ver>v1.0.1</span></span></h3>
+        <p>Virtual-analogue lead synth with 24 voices and 47 waveforms. A compact 4:3 layout for smaller screens is one click away.</p>
+        <div class="tags"><span>VST3</span><span>AU</span><span>STANDALONE</span><span>WIN</span><span>MAC</span></div>
+        <div class="actions">
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/NIQUE-D0/releases/latest/download/NIQUED0-Windows.zip" target="_blank" rel="noopener">↓ Windows</a>
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/NIQUE-D0/releases/latest/download/NIQUED0-macOS.zip" target="_blank" rel="noopener">↓ Mac</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/NIQUE-D0" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="mpc">
+  <div class="sec-head">
+    <span class="idx">02</span><h2>MPC PLUGINS</h2>
+    <p>Plugins for Akai MPC standalone, built with Akai's MPC Plugin SDK.</p>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9 T 450 9 T 500 9 T 550 9 T 600 9 T 650 9 T 700 9 T 750 9 T 800 9 T 850 9 T 900 9 T 950 9 T 1000 9 T 1050 9 T 1100 9 T 1150 9 T 1200 9"/></svg>
+  <div class="grid plugins mpc">
+    <article class="card" data-repo="PROPHET-67-VST">
+      <div class="shot"><img src="img/prophet-67-vst.jpg" alt="PROPHET 67 on the MPC" loading="lazy"></div>
+      <div class="body">
+        <h3>PROPHET 67<span class="vers"><span class="ver" data-ver>v1.0.4</span></span></h3>
+        <p>The PROPHET 67 polysynth on your MPC, with the same sound and panel as the plugin.</p>
+        <p class="note">In the OpenMPC Plugin Manager it is listed as <b>PROPHETIC 6</b>.</p>
+        <div class="tags"><span>MPC</span><span>OPENMPC</span></div>
+        <div class="actions">
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/PROPHET-67-VST/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/PROPHET-67-VST" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="ARIA">
+      <div class="shot"><img src="img/aria.jpg" alt="ARIA on the MPC" loading="lazy"></div>
+      <div class="body">
+        <h3>ARIA<span class="vers"><span class="ver" data-ver>v1.3.2</span></span></h3>
+        <p>ARIA on your MPC: eight voices, two ladder filters and the chord memory with KEY mode.</p>
+        <p class="note">Download the MPC files from the release page.</p>
+        <div class="tags"><span>MPC</span><span>OPENMPC</span></div>
+        <div class="actions">
+          <a class="btn solid" href="https://github.com/swtdr34mz-afk/ARIA/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/ARIA" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="fm1">
+  <div class="sec-head">
+    <span class="idx">03</span><h2>FM-1 MODS</h2>
+    <p>Alternative firmwares for the M-VAVE FM-1. Some run right here in your browser.</p>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9 T 450 9 T 500 9 T 550 9 T 600 9 T 650 9 T 700 9 T 750 9 T 800 9 T 850 9 T 900 9 T 950 9 T 1000 9 T 1050 9 T 1100 9 T 1150 9 T 1200 9"/></svg>
+  <div class="grid fw">
+    <article class="card" data-repo="OFFWORLD" data-asset=".fwsc">
+      <div class="shot"><img src="img/offworld.png" alt="OFFWORLD screen" loading="lazy"></div>
+      <div class="body">
+        <h3>OFFWORLD<span class="vers"><span class="ver" data-ver>v0.4.3</span></span></h3>
+        <p>Drone synth for 80s sci-fi: colossal brass, a reverb that rings for 30 seconds or forever.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/OFFWORLD/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/OFFWORLD" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="PROPHET-67" data-asset=".fwsc">
+      <div class="shot"><img src="img/prophet-67.png" alt="PROPHET 67 screen" loading="lazy"></div>
+      <div class="body">
+        <h3>PROPHET 67<span class="vers"><span class="ver" data-ver>v1.4</span></span></h3>
+        <p>Seven-voice polysynth with Poly Mod, Vintage, a step sequencer and an arp. The plugin's twin.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/PROPHET-67/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://swtdr34mz-afk.github.io/PROPHET-67/emu/" target="_blank" rel="noopener">▶ Play</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="GRAIN_PIANO" data-asset=".fwsc">
+      <div class="shot"><img src="img/grain-piano.png" alt="GRAIN PIANO screen" loading="lazy"></div>
+      <div class="body">
+        <h3>GRAIN PIANO<span class="vers"><span class="ver" data-ver>v1.4</span></span></h3>
+        <p>One instrument: a sampled grand piano that a granulator breaks into clouds of grains.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/GRAIN_PIANO/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/GRAIN_PIANO" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="COLLAPSE" data-asset=".fwsc">
+      <div class="shot"><img src="img/collapse.png" alt="COLLAPSE screen" loading="lazy"></div>
+      <div class="body">
+        <h3>COLLAPSE<span class="vers"><span class="ver" data-ver>v0.3.2</span></span></h3>
+        <p>Physics drum machine: six instruments in a web of springs, so no two hits sound the same.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/COLLAPSE/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/COLLAPSE" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="SIX_MACHINES" data-asset=".fwsc">
+      <div class="shot"><img src="img/six-machines.png" alt="SIX MACHINES screen" loading="lazy"></div>
+      <div class="body">
+        <h3>SIX MACHINES<span class="vers"><span class="ver" data-ver>v0.1.6</span></span></h3>
+        <p>Performance drum machine with six engines. Every knob rests on sweetspots, so the sound always works.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/SIX_MACHINES/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://github.com/swtdr34mz-afk/SIX_MACHINES" target="_blank" rel="noopener">Details</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="STRANGER_SYNTH" data-asset=".fwsc">
+      <div class="shot"><img src="img/stranger-synth.png" alt="STRANGER SYNTH screen" loading="lazy"></div>
+      <div class="body">
+        <h3>STRANGER SYNTH<span class="vers"><span class="ver" data-ver>v0.8.0</span></span></h3>
+        <p>Performance synth for 80s film-score sounds: detuned saws, pulsing arps, low split, tape stops.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/STRANGER_SYNTH/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://swtdr34mz-afk.github.io/STRANGER_SYNTH/emu/" target="_blank" rel="noopener">▶ Play</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="INSERT_COIN" data-asset=".fwsc">
+      <div class="shot"><img src="img/insert-coin.png" alt="INSERT COIN screen" loading="lazy"></div>
+      <div class="body">
+        <h3>INSERT COIN<span class="vers"><span class="ver" data-ver>v0.9</span></span></h3>
+        <p>Chiptune chords and Game Boy drums, while an 80s arcade shooter fires on every key you play.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/INSERT_COIN/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://swtdr34mz-afk.github.io/INSERT_COIN/emu/" target="_blank" rel="noopener">▶ Play</a>
+        </div>
+      </div>
+    </article>
+    <article class="card" data-repo="CHORD_RUN" data-asset=".fwsc">
+      <div class="shot"><img src="img/chord-run.png" alt="CHORD RUN screen" loading="lazy"></div>
+      <div class="body">
+        <h3>CHORD RUN<span class="vers"><span class="ver" data-ver>v2.6</span></span></h3>
+        <p>Song chords on the black keys, a melody on the white ones, while a little runner runs as long as you play.</p>
+        <div class="actions">
+          <a class="btn solid" data-dl href="https://github.com/swtdr34mz-afk/CHORD_RUN/releases/latest" target="_blank" rel="noopener">Download</a>
+          <a class="btn ghost" href="https://swtdr34mz-afk.github.io/CHORD_RUN/emu/" target="_blank" rel="noopener">▶ Play</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="install">
+  <div class="sec-head">
+    <span class="idx">04</span><h2>INSTALL</h2>
+    <p>The download buttons always fetch the newest version.</p>
+  </div>
+  <div class="install">
+    <div class="box">
+      <h3>VST · Windows</h3>
+      <ol>
+        <li>Unzip the download.</li>
+        <li>Copy the <code>.vst3</code> folder to <code>C:\Program Files\Common Files\VST3\</code></li>
+        <li>Rescan plugins in your DAW. They show up under the maker <b>swtdr34mz</b>.</li>
+        <li>The <code>.exe</code> is the standalone app. If SmartScreen warns, choose <i>More info → Run anyway</i>.</li>
+      </ol>
+    </div>
+    <div class="box">
+      <h3>VST · Mac</h3>
+      <ol>
+        <li>Unzip the download.</li>
+        <li><code>.vst3</code> goes to <code>~/Library/Audio/Plug-Ins/VST3/</code>, <code>.component</code> (AU) to <code>~/Library/Audio/Plug-Ins/Components/</code></li>
+        <li>The plugins are not signed. Run once in Terminal: <code>xattr -cr</code> followed by the file path.</li>
+      </ol>
+    </div>
+    <div class="box">
+      <h3>MPC</h3>
+      <ol>
+        <li>Open the OpenMPC Plugin Manager and install from there, if the plugin is listed.</li>
+        <li>Or take the MPC files from the release page.</li>
+      </ol>
+    </div>
+    <div class="box">
+      <h3>FM-1 Mods</h3>
+      <ol>
+        <li>Download the <code>.fwsc</code> file.</li>
+        <li>Install it like any other FM-1 firmware.</li>
+        <li>Unofficial: it replaces the FM-1's firmware. Install at your own risk.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <img class="tag" src="img/tag.png" alt="swtdr34mz">
+  <p>All plugins and mods are free, made by swtdr34mz.</p>
+  <p>Unofficial projects. Not made, endorsed or supported by Sequential, Moog, Nord / Clavia, Elta Music, M-VAVE or Akai. All trademarks belong to their owners.</p>
+  <p><a href="https://github.com/swtdr34mz-afk" target="_blank" rel="noopener">github.com/swtdr34mz-afk</a></p>
+</footer>
+<script>
+{
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- live oscilloscope (the logo, moving) ---------- */
+  const cv = document.getElementById('scope');
+  const ctx = cv.getContext('2d');
+  let W = 0, H = 0, dpr = 1;
+  const size = () => {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  const scopeRO = new ResizeObserver(size); scopeRO.observe(cv);
+
+  const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+  let energy = 0.6, kick = 0, t0 = performance.now(), lastBeat = 0;
+  let mx = 0, my = 0, mouseE = 0, scrollE = 0, lastY = scrollY;
+  const hero = document.getElementById('top');
+  hero.addEventListener('pointermove', e => {
+    const r = cv.getBoundingClientRect();
+    const nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
+    mouseE = Math.min(1, mouseE + Math.hypot(nx - mx, ny - my) * 3);
+    mx = nx; my = ny;
+  });
+  addEventListener('scroll', () => { scrollE = Math.min(1, scrollE + Math.abs(scrollY - lastY) / 300); lastY = scrollY; }, {passive: true});
+
+  const frame = now => {
+    const t = (now - t0) / 1000;
+    // a beat every half second, like a kick drum
+    if (t - lastBeat > .5) { lastBeat = t; kick = 1; }
+    kick *= .9; mouseE *= .95; scrollE *= .93;
+    const target = .55 + .12 * Math.sin(t * .7) + .22 * kick + .35 * mouseE + .25 * scrollE;
+    energy += (target - energy) * .2;
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+    const cx = W / 2 + mx * 20, cy = H / 2 + my * 20, s = Math.min(W, H);
+
+    // the noise cloud of the logo: tall, jagged, always moving
+    const n = 260, sx = s * .27 * energy, sy = s * .5 * energy;
+    for (let pass = 0; pass < 2; pass++) {
+      ctx.strokeStyle = pass ? 'rgba(0,246,255,0.5)' : 'rgba(0,200,210,0.18)';
+      ctx.lineWidth = pass ? .9 : 1.6;
+      ctx.beginPath();
+      let x = cx, y = cy;
+      for (let i = 0; i < n; i++) {
+        x = cx + gauss() * sx * (pass ? 1 : 1.25); y = cy + gauss() * sy * (pass ? 1 : 1.2);
+        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.stroke();
+    }
+    requestAnimationFrame(frame);
+  };
+  size();
+  requestAnimationFrame(frame);
+
+  /* ---------- scroll progress ---------- */
+  const prog = document.getElementById('prog');
+  addEventListener('scroll', () => {
+    const h = document.documentElement.scrollHeight - innerHeight;
+    prog.style.width = (h > 0 ? scrollY / h * 100 : 0) + '%';
+  }, {passive: true});
+
+  /* ---------- reveal cards and boxes as they scroll in ---------- */
+  const items = document.querySelectorAll('.card, .box, .stats, .sec-head');
+  items.forEach(el => el.classList.add('rv'));
+  const revealIO = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (!e.isIntersecting) return;
+      const sibs = [...e.target.parentNode.children];
+      e.target.style.transitionDelay = (sibs.indexOf(e.target) % 4) * 90 + 'ms';
+      e.target.classList.add('in');
+      revealIO.unobserve(e.target);
+      if (e.target.classList.contains('stats')) countUp(e.target);
+    });
+  }, {threshold: .12});
+  items.forEach(el => revealIO.observe(el));
+
+  /* ---------- count the numbers up ---------- */
+  const countUp = box => box.querySelectorAll('[data-count]').forEach(b => {
+    const end = +b.dataset.count, t1 = performance.now();
+    const step = now => { const p = Math.min(1, (now - t1) / 900); b.textContent = Math.round(end * p * p); if (p < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+</script>
+<script>
+{
+  /* Fills in the newest version of every project from releases.json,
+     which a GitHub Action refreshes every hour. */
+  const NEW_DAYS = 7;
+  fetch('releases.json', {cache: 'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data || !data.repos) return;
+      for (const card of document.querySelectorAll('[data-repo]')) {
+        const rel = data.repos[card.dataset.repo];
+        if (!rel || !rel.tag) continue;
+        const ver = card.querySelector('[data-ver]');
+        if (ver) ver.textContent = rel.tag;
+        const age = (Date.now() - Date.parse(rel.date)) / 86400000;
+        if (age < NEW_DAYS && !card.querySelector('.ver.new')) {
+          const b = document.createElement('span');
+          b.className = 'ver new';
+          b.textContent = 'NEW';
+          ver.parentNode.prepend(b);
+        }
+        const ext = card.dataset.asset;
+        const dl = card.querySelector('[data-dl]');
+        if (ext && dl && rel.assets) {
+          const name = Object.keys(rel.assets).find(n => n.endsWith(ext));
+          if (name) dl.href = rel.assets[name];
+        }
+      }
+    })
+    .catch(() => {});
+}
+</script>
+</body>
+</html>
