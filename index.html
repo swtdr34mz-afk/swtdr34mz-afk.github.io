@@ -166,11 +166,17 @@
   .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
   @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(3){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}}
 
-  /* wave under section titles */
-  .wave{display:block;width:100%;height:18px;margin:-30px 0 30px;opacity:.7}
-  .wave path{fill:none;stroke:var(--cyan);stroke-width:1.2;stroke-dasharray:6 4;animation:flow 3s linear infinite}
-  @keyframes flow{to{stroke-dashoffset:-60}}
-
+  /* synthwave horizon under section titles */
+  .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
+  .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+    background:linear-gradient(90deg,transparent,#00f6ff 30%,#7ffbff 50%,#00f6ff 70%,transparent);box-shadow:0 0 14px #00f6ff88}
+  .sec-head::after{content:"";position:absolute;left:-10%;right:-10%;top:100%;height:90px;pointer-events:none;
+    background-image:linear-gradient(#00f6ff40 1px,transparent 1px),linear-gradient(90deg,#00f6ff40 1px,transparent 1px);
+    background-size:48px 24px;transform-origin:top;transform:perspective(140px) rotateX(62deg);
+    -webkit-mask:linear-gradient(#000,transparent 75%),linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent);-webkit-mask-composite:source-in;
+    mask:linear-gradient(#000,transparent 75%) intersect,linear-gradient(90deg,transparent,#000 25%,#000 75%,transparent);
+    animation:grid 6s linear infinite}
+  @keyframes grid{to{background-position:0 24px,0 0}}
   /* reveal on scroll */
   .rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1)}
   .rv.in{opacity:1;transform:none}
@@ -182,7 +188,7 @@
   .fw .card:hover .shot::after{opacity:1;animation:sweep 1.6s linear infinite}
   @keyframes sweep{to{background-position:0 100%,0 0}}
 
-  @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.wave path,.hint,.fw .card:hover .shot::after{animation:none}}
+  @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.sec-head::after,.fw .card:hover .shot::after{animation:none}}
 
   /* discord */
   .discord{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px}
@@ -262,7 +268,6 @@
     <span class="idx">01</span><h2>VST PLUGINS</h2>
     <p>VST3 for Windows and Mac, AU for Logic and GarageBand, and a standalone app.</p>
   </div>
-  <svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9 T 450 9 T 500 9 T 550 9 T 600 9 T 650 9 T 700 9 T 750 9 T 800 9 T 850 9 T 900 9 T 950 9 T 1000 9 T 1050 9 T 1100 9 T 1150 9 T 1200 9"/></svg>
   <div class="grid plugins">
     <article class="card" data-repo="PROPHET-67-VST">
       <div class="shot"><img src="img/prophet-67-vst.jpg" alt="PROPHET 67 plugin panel" loading="lazy"></div>
@@ -324,7 +329,6 @@
     <span class="idx">02</span><h2>MPC PLUGINS</h2>
     <p>Plugins for Akai MPC standalone, built with Akai's MPC Plugin SDK.</p>
   </div>
-  <svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9 T 450 9 T 500 9 T 550 9 T 600 9 T 650 9 T 700 9 T 750 9 T 800 9 T 850 9 T 900 9 T 950 9 T 1000 9 T 1050 9 T 1100 9 T 1150 9 T 1200 9"/></svg>
   <div class="grid plugins mpc">
     <article class="card" data-repo="PROPHET-67-VST">
       <div class="shot"><img src="img/prophet-67-vst.jpg" alt="PROPHET 67 on the MPC" loading="lazy"></div>
@@ -360,7 +364,6 @@
     <span class="idx">03</span><h2>FM-1 MODS</h2>
     <p>Alternative firmwares for the M-VAVE FM-1. Some run right here in your browser.</p>
   </div>
-  <svg class="wave" viewBox="0 0 1200 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9 T 450 9 T 500 9 T 550 9 T 600 9 T 650 9 T 700 9 T 750 9 T 800 9 T 850 9 T 900 9 T 950 9 T 1000 9 T 1050 9 T 1100 9 T 1150 9 T 1200 9"/></svg>
   <div class="grid fw">
     <article class="card" data-repo="OFFWORLD" data-asset=".fwsc">
       <div class="shot"><img src="img/offworld.png" alt="OFFWORLD screen" loading="lazy"></div>
