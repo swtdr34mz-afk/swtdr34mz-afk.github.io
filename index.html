@@ -58,7 +58,7 @@
     95%{transform:translateX(3px);filter:drop-shadow(-4px 0 0 #00f6ff) drop-shadow(4px 0 0 #ff2bd6)}
     96%{transform:none;opacity:.6}
     97%{opacity:1}}
-  .term{min-height:3.4em;max-width:640px;font:500 clamp(15px,2.3vw,20px)/1.6 var(--mono);color:var(--cyan);text-shadow:0 0 10px #00f6ff88;text-align:left;
+  .term{min-height:1.8em;max-width:640px;font:500 clamp(15px,2.3vw,20px)/1.6 var(--mono);color:var(--cyan);text-shadow:0 0 10px #00f6ff88;text-align:left;
         display:flex;flex-direction:column;align-items:flex-start}
   .term .ln::before{content:"> ";color:#4d8f93}
   .term .ln.done{color:#9fe9ec;text-shadow:none}
@@ -193,8 +193,8 @@
 <header class="hero" id="top">
   <div class="scopewrap"><div class="glow"></div><canvas id="scope" aria-hidden="true"></canvas></div>
   <h1><img src="img/tag.png" alt="SWTDR34MZ"></h1>
-  <div class="term" id="term" aria-label="Synth plugins for your DAW and your MPC, and mods for the M-VAVE FM-1. All free.">
-    <noscript>Synth plugins for your DAW and your MPC, and mods for the M-VAVE FM-1. All free.</noscript>
+  <div class="term" id="term" aria-label="Free synths. Press start.">
+    <noscript>Free synths. Press start.</noscript>
   </div>
   <div class="cta" id="cta">
     <a class="btn solid" href="#vst">VST Plugins</a>
@@ -543,12 +543,23 @@
 
   /* ---------- terminal intro, typed like an old monitor ---------- */
   const term = document.getElementById('term'), cta = document.getElementById('cta');
+  const pool = [
+    'PRESS PLAY ON TAPE',
+    'Blowing into the cartridge...',
+    'Rewinding with a pencil...',
+    'MOM, DON\'T PICK UP THE PHONE!',
+    'Dialing in at 56k... kkkrrrsshhh',
+    'Saving to floppy. Do not eject.',
+    'Loading... 99%... 99%... 99%',
+    'Be kind, rewind.',
+    'Your Tamagotchi misses you.',
+    'Taping the charts off the radio...',
+    'Insert coin.',
+  ];
+  const pick = pool.sort(() => Math.random() - .5).slice(0, 3);
   const scenes = [
-    {t: 'Wake up, producer...', hold: 1400, clear: true},
-    {t: 'The signal has you.', hold: 1200, clear: true},
-    {t: 'Follow the noise.', hold: 1300, clear: true},
-    {t: 'Synths for your DAW, your MPC and the FM-1.', hold: 300},
-    {t: 'All free. Plug in and play.', hold: 0, last: true},
+    ...pick.map(t => ({t, hold: 900, clear: true})),
+    {t: 'Free synths. Press start.', hold: 0, last: true},
   ];
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const cur = document.createElement('span'); cur.className = 'cur';
@@ -558,16 +569,16 @@
       const ln = document.createElement('div'); ln.className = 'ln'; term.append(ln);
       for (const ch of sc.t) {
         ln.textContent += ch; ln.append(cur);
-        await sleep(ch === ' ' ? 35 : 45 + Math.random() * 70);
-        if (ch === ',' || ch === '.') await sleep(120);
+        await sleep(ch === ' ' ? 25 : 30 + Math.random() * 50);
+        if (ch === '.' || ch === '!') await sleep(90);
       }
       await sleep(sc.hold);
-      if (sc.clear) { term.textContent = ''; await sleep(350); }
+      if (sc.clear) { term.textContent = ''; await sleep(250); }
       else if (!sc.last) ln.classList.add('done');
     }
     cta.classList.add('show');
   })();
-  setTimeout(() => cta.classList.add('show'), 9000);
+  setTimeout(() => cta.classList.add('show'), 7000);
 
   /* ---------- scroll progress ---------- */
   const prog = document.getElementById('prog');
