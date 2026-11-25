@@ -171,12 +171,13 @@
   .what .box p:last-child{margin:0}
   .what .box .big{font:800 44px/1 var(--mono);color:var(--cyan);margin-bottom:14px;text-shadow:0 0 18px #00f6ff66}
   .what .box a{border-bottom:1px solid #00f6ff55}
-  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:22px;border:1px solid var(--line);background:var(--panel)}
+  .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:22px;border:1px solid var(--line);background:var(--panel)}
   .stats div{padding:22px 10px;text-align:center;border-left:1px solid var(--line)}
   .stats div:first-child{border-left:0}
   .stats b{display:block;font:800 clamp(28px,5vw,48px)/1 var(--mono);color:#fff;text-shadow:0 0 16px #00f6ff88}
   .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
-  @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(3){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}}
+  .stats .dlbox b{color:var(--cyan)}
+  @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(odd){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}.stats div:last-child{grid-column:1/-1}}
 
 
   /* ---------- newest releases ticker ---------- */
@@ -346,6 +347,7 @@
     <div><b data-count="8" data-of="vst">8</b><span>VST plugins</span></div>
     <div><b data-count="5" data-of="mpc">5</b><span>MPC plugins</span></div>
     <div><b data-count="9" data-of="fm1">9</b><span>FM-1 mods</span></div>
+    <div class="dlbox"><b id="dl-total">&ndash;</b><span>Downloads</span></div>
     <div><b>0 €</b><span>Everything free</span></div>
   </div>
 </section>
@@ -1047,11 +1049,12 @@
     const n = document.querySelectorAll('#' + b.dataset.of + ' article.card').length;
     if (n) { b.dataset.count = n; b.textContent = n; }
   });
-  const countUp = box => box.querySelectorAll('[data-count]').forEach(b => {
-    const end = +b.dataset.count, t1 = performance.now();
-    const step = now => { const p = Math.min(1, (now - t1) / 900); b.textContent = Math.round(end * p * p); if (p < 1) requestAnimationFrame(step); };
+  function countTo(b, end) {
+    const t1 = performance.now();
+    const step = now => { const p = Math.min(1, (now - t1) / 1200); b.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))).toLocaleString('en-US'); if (p < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
-  });
+  }
+  const countUp = box => box.querySelectorAll('[data-count]').forEach(b => countTo(b, +b.dataset.count));
 }
 </script>
 <script>
@@ -1141,6 +1144,14 @@
              .forEach(([c]) => grid.append(c));
       }
       buildTicker(data);
+      // all downloads of all synths together
+      const total = Object.values(data.repos).reduce((a, r) => a + (r.downloads ? r.downloads.main + r.downloads.mpc : 0), 0);
+      const tb = document.getElementById('dl-total');
+      if (tb && total > 0) {
+        tb.dataset.count = total;
+        const box = tb.closest('.stats');
+        if (box && box.classList.contains('in')) countTo(tb, total); else tb.textContent = '0';
+      }
     })
     .catch(() => {});
 }
