@@ -199,6 +199,24 @@
   @keyframes flash{0%{box-shadow:0 0 0 2px var(--cyan),0 0 60px #00f6ffaa}100%{box-shadow:0 0 0 0 transparent}}
   @media (max-width:700px){.ticker{margin:-22px -20px 4px}.ticker .lbl{display:none}}
   .dls{min-height:1.5em;margin-top:-2px;font:12px var(--mono);letter-spacing:.06em;color:#7fdfe3}
+
+  /* ---------- guestbook (fictional, for fun) ---------- */
+  .guestbook{margin-top:22px}
+  .gb-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:22px}
+  .guestbook .big{font:800 44px/1 var(--mono);color:var(--cyan);margin-bottom:14px;text-shadow:0 0 18px #00f6ff66}
+  .guestbook h3{color:var(--text);text-transform:none;letter-spacing:.04em}
+  .blink{color:#ffd36b;animation:blink 1.2s steps(1) infinite}
+  .gb-side{display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+  .counter{font:12px var(--mono);color:var(--muted);letter-spacing:.06em}
+  .counter span{display:inline-block;margin-left:6px;padding:3px 6px;background:#000;border:1px solid #1d4246;color:#7dff6b;letter-spacing:.3em;font-weight:700}
+  .gb-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:14px}
+  .gb-entry{border:1px dashed #1d4246;padding:14px 16px;background:#030809}
+  .gb-head{display:flex;justify-content:space-between;gap:10px;font:13px var(--mono)}
+  .gb-head b{color:var(--cyan)}
+  .gb-head span{color:#4d6a6c;white-space:nowrap}
+  .gb-from{font:11px var(--mono);color:#4d6a6c;margin:3px 0 8px}
+  .gb-entry p{margin:0;color:#bfdfe0;font-size:14.5px;overflow-wrap:anywhere}
+  @media (max-width:640px){.gb-side{align-items:flex-start}}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -690,6 +708,62 @@
       <p class="note">German and English both welcome.</p>
     </div>
     <a class="btn solid" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Join the Discord</a>
+  </div>
+
+  <div class="guestbook box">
+    <div class="gb-top">
+      <div>
+        <div class="big">GUESTBOOK</div>
+        <h3><span class="blink">★</span> Sign my guestbook! <span class="blink">★</span></h3>
+        <p class="note">These entries are by fictional visitors, written just for fun. Want to leave a real one? Say hi on Discord.</p>
+      </div>
+      <div class="gb-side">
+        <div class="counter" title="probably">You are visitor No. <span>001337</span></div>
+        <a class="btn ghost" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Sign it on Discord</a>
+      </div>
+    </div>
+    <div class="gb-list">
+      <div class="gb-entry">
+        <div class="gb-head"><b>xX_DarkSynth_Xx</b><span>14.03.1999</span></div>
+        <div class="gb-from">from: GeoCities, Neighborhood: SunsetStrip</div>
+        <p>omg this site is so kewl!!! added u to my webring. pls sign my guestbook back :)</p>
+      </div>
+      <div class="gb-entry">
+        <div class="gb-head"><b>Kevin (14)</b><span>1997</span></div>
+        <div class="gb-from">from: his room</div>
+        <p>My mom says I can't download synths until I clean my room. Room status: synths downloaded.</p>
+      </div>
+      <div class="gb-entry">
+        <div class="gb-head"><b>DJ Toaster</b><span>2003</span></div>
+        <div class="gb-from">from: the kitchen</div>
+        <p>Loaded PROPHET 67 into my toaster. Bread now comes out with Poly Mod.</p>
+      </div>
+      <div class="gb-entry">
+        <div class="gb-head"><b>Oma Hildegard</b><span>last Sunday</span></div>
+        <div class="gb-from">from: Kaffeekränzchen</div>
+        <p>Ich wollte eigentlich ein Rezept für Zwetschgenkuchen. Jetzt hab ich ein FM-1. Danke?</p>
+      </div>
+      <div class="gb-entry">
+        <div class="gb-head"><b>A Time Traveller</b><span>2087</span></div>
+        <div class="gb-from">from: the future</div>
+        <p>In my time OFFWORLD is the national anthem. Keep going.</p>
+      </div>
+      <div class="gb-entry">
+        <div class="gb-head"><b>Someone from Accounting</b><span>Q4</span></div>
+        <div class="gb-from">from: the office</div>
+        <p>Can I expense this? It says 0 €. Still waiting for approval.</p>
+      </div>
+      <div class="gb-entry">
+        <div class="gb-head"><b>Detlef, 56, Bassist</b><span>1988</span></div>
+        <div class="gb-from">from: Proberaum</div>
+        <p>Zu viele Knöpfe. 5 Sterne.</p>
+      </div>
+      <div class="gb-entry">
+        <div class="gb-head"><b>The Cat</b><span>just now</span></div>
+        <div class="gb-from">from: on your keyboard</div>
+        <p>jkkkkkkkkkkkkkkkkkkkkkkkkkkk;;;;;;;;''''''' ppppppp</p>
+      </div>
+    </div>
   </div>
 </section>
 
