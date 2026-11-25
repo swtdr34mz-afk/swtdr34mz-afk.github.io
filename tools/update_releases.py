@@ -36,6 +36,7 @@ for repo in repos:
         "date": rel.get("published_at"),
         "url": rel.get("html_url"),
         "assets": {a["name"]: a["browser_download_url"] for a in rel.get("assets", [])},
+        "notes": (rel.get("body") or "")[:900],
     }
     print(f"{repo}: {rel['tag_name']}")
 
