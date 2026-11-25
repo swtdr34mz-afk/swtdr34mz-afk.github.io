@@ -813,6 +813,17 @@
           if (name) dl.href = rel.assets[name];
         }
       }
+      // newest release first in every section; cards without a release keep their place at the end
+      const when = card => {
+        const rel = data.repos[card.dataset.repo];
+        return rel && rel.date ? Date.parse(rel.date) : -Infinity;
+      };
+      for (const grid of document.querySelectorAll('.grid')) {
+        const cards = [...grid.querySelectorAll(':scope > article.card')];
+        cards.map((c, i) => [c, when(c), i])
+             .sort((a, b) => (b[1] - a[1]) || (a[2] - b[2]))
+             .forEach(([c]) => grid.append(c));
+      }
     })
     .catch(() => {});
 }
