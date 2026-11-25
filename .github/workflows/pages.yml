@@ -14,6 +14,10 @@ on:
         description: "Post these projects in Discord again (repo names, comma-separated, e.g. RAND)"
         required: false
         default: ""
+      areas:
+        description: "Only in these channels (vst, mpc, fm1; comma-separated; empty: all of the project's)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -80,4 +84,5 @@ jobs:
           DISCORD_WEBHOOK_FM1: ${{ secrets.DISCORD_WEBHOOK_FM1 }}
         run: |
           F=""; if [ -n "${{ github.event.inputs.announce }}" ]; then F="--force ${{ github.event.inputs.announce }}"; fi
+          if [ -n "${{ github.event.inputs.areas }}" ]; then F="$F --only ${{ github.event.inputs.areas }}"; fi
           python3 tools/announce.py diff/old-releases.json diff/releases.json $F

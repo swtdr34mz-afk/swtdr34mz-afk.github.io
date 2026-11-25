@@ -12,7 +12,7 @@ The channels are Discord webhooks, kept as repository secrets:
 A missing secret: that area is skipped. Without the old file (first run, or
 the site unreachable) nothing is posted, so nothing is announced twice.
 
-  python3 tools/announce.py OLD.json NEW.json [--force REPO,REPO] [--dry]
+  python3 tools/announce.py OLD.json NEW.json [--force REPO,REPO] [--only vst,mpc,fm1] [--dry]
 """
 import html as htmlmod, json, os, re, sys, urllib.request
 
@@ -69,6 +69,9 @@ def main():
     force = []
     if "--force" in args:
         force = [x.strip() for x in args[args.index("--force") + 1].split(",") if x.strip()]
+    only = []                           # (by hand: post only in these areas' channels)
+    if "--only" in args:
+        only = [x.strip().lower() for x in args[args.index("--only") + 1].split(",") if x.strip()]
     old, new = load(args[0]), load(args[1])
     if new is None:
         print("no new releases.json")
@@ -98,6 +101,8 @@ def main():
         print(f"{title}: {'new' if first else 'update'} -> {', '.join(c['areas'])}")
         head = lines
         for area in c["areas"]:
+            if only and area not in only:
+                continue
             c["what"], c["img"] = c["by"][area]["what"], c["by"][area]["img"]
             lines = list(head)
             lines.append(c["what"])
