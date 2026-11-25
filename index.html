@@ -224,7 +224,7 @@
       font:11px/1.35 Tahoma,"MS Sans Serif",Verdana,sans-serif;color:#000;
       transform:translateY(140%);transition:transform .5s cubic-bezier(.2,.9,.3,1.2)}
   .im.show{transform:none}
-  @media (max-width:799px),(hover:none),(pointer:coarse){.im{display:none}}
+  @media (max-width:799px){.im{display:none}}
   .im-bar{display:flex;align-items:center;gap:6px;padding:3px 3px 3px 5px;background:linear-gradient(90deg,#0a246a,#a6caf0);color:#fff;font-weight:700}
   .im-dot{width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b8ff9c,#2fb52a 60%,#16700f);box-shadow:0 0 0 1px #0b4a08}
   .im-bar span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -989,8 +989,8 @@
     document.getElementById('im-x').addEventListener('click', close);
     document.getElementById('im-later').addEventListener('click', close);
     // computers only: a mouse and a wide screen, no phones or tablets
-    const desktop = matchMedia('(hover: hover) and (pointer: fine) and (min-width: 800px)').matches;
-    if (!shown && desktop) setTimeout(() => {
+    const desktop = innerWidth >= 800 && matchMedia('(any-pointer: fine)').matches;
+    if (desktop) setTimeout(() => {
       try { sessionStorage.setItem('im', '1'); } catch (e) {}
       document.getElementById('im-name').textContent = name;
       document.getElementById('im-title').textContent = name + ' \u2013 Message Session';
