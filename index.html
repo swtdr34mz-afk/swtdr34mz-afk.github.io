@@ -217,6 +217,24 @@
   .gb-from{font:11px var(--mono);color:#4d6a6c;margin:3px 0 8px}
   .gb-entry p{margin:0;color:#bfdfe0;font-size:14.5px;overflow-wrap:anywhere}
   @media (max-width:640px){.gb-side{align-items:flex-start}}
+
+  /* ---------- 2001 messenger popup ---------- */
+  .im{position:fixed;right:18px;bottom:18px;z-index:40;width:min(320px,calc(100vw - 36px));background:#0a1415;border:1px solid #2b5c60;
+      box-shadow:0 12px 40px #000c,0 0 0 1px #000,0 0 30px #00f6ff22;font:13px var(--mono);color:var(--text);
+      transform:translateY(140%);transition:transform .5s cubic-bezier(.2,.9,.3,1.2)}
+  .im.show{transform:none}
+  .im-bar{display:flex;align-items:center;gap:8px;padding:6px 8px;background:linear-gradient(90deg,#0b3a3e,#06606a);color:#e9feff;font-weight:700;letter-spacing:.04em}
+  .im-dot{width:10px;height:10px;border-radius:50%;background:#5dff5d;box-shadow:0 0 6px #5dff5d}
+  .im-bar span{flex:1}
+  .im-x{width:20px;height:18px;border:1px solid #8fd;background:#0a1415;color:#e9feff;font:700 11px/1 var(--mono);cursor:pointer}
+  .im-x:hover{background:#ff2bd6;border-color:#ff2bd6}
+  .im-body{padding:10px 12px 12px}
+  .im-who{font-size:11px;color:var(--muted);margin-bottom:6px}
+  .im-who b{color:#ff6bd6}
+  .im-msg{min-height:3.2em;padding:8px 10px;background:#000;border:1px inset #1d4246;color:#e9feff;line-height:1.45}
+  .im-typing{color:var(--muted);font-style:italic}
+  .im-acts{display:flex;gap:8px;margin-top:10px}
+  .im-acts .btn{padding:7px 10px;font-size:10.5px}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -759,6 +777,11 @@
         <p>Zu viele Knöpfe. 5 Sterne.</p>
       </div>
       <div class="gb-entry">
+        <div class="gb-head"><b>UIN 23051998</b><span>2001</span></div>
+        <div class="gb-from">from: status Away</div>
+        <p>Away message: making beats with ARIA. If you nudge me one more time I'm adding you to the ignore list.</p>
+      </div>
+      <div class="gb-entry">
         <div class="gb-head"><b>The Cat</b><span>just now</span></div>
         <div class="gb-from">from: on your keyboard</div>
         <p>jkkkkkkkkkkkkkkkkkkkkkkkkkkk;;;;;;;;''''''' ppppppp</p>
@@ -766,6 +789,18 @@
     </div>
   </div>
 </section>
+
+<div class="im" id="im" role="dialog" aria-label="Message" hidden>
+  <div class="im-bar"><i class="im-dot"></i><span>uh-oh! &mdash; 1 new message</span><button class="im-x" id="im-x" type="button" aria-label="Close">x</button></div>
+  <div class="im-body">
+    <div class="im-who"><b id="im-name">SynthBuddy</b> (UIN <span id="im-uin">1337420</span>) &middot; online</div>
+    <div class="im-msg" id="im-msg"><span class="im-typing">is typing...</span></div>
+    <div class="im-acts">
+      <a class="btn solid" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Reply on Discord</a>
+      <button class="btn ghost" id="im-later" type="button">Set status: Away</button>
+    </div>
+  </div>
+</div>
 
 <footer>
   <img class="tag" src="img/tag.png" alt="swtdr34mz">
@@ -896,6 +931,37 @@
   })();
   setTimeout(() => cta.classList.add('show'), 7000);
 
+
+  /* ---------- 2001 messenger popup: once per visit ---------- */
+  {
+    const im = document.getElementById('im');
+    const msgs = [
+      ['SynthBuddy', 'hey!! r u there?? new synths are out, check the top of the page :D'],
+      ['xX_Ravegirl_Xx', 'brb, my mom needs the phone line. download the synths before she hangs up!!'],
+      ['DJ Toaster', 'a/s/l? 128bpm/m/bassline. downloaded PROPHET 67 yet?'],
+      ['Kevin (14)', 'did u see?? my FM-1 has like 9 new brains now. lol'],
+      ['MidiMike', '*nudge* *nudge* the synths are free. FREE. what r u waiting 4'],
+    ];
+    const [name, text] = msgs[Math.floor(Math.random() * msgs.length)];
+    let shown = false;
+    try { shown = sessionStorage.getItem('im') === '1'; } catch (e) {}
+    const close = () => { im.classList.remove('show'); setTimeout(() => { im.hidden = true; }, 500); };
+    document.getElementById('im-x').addEventListener('click', close);
+    document.getElementById('im-later').addEventListener('click', close);
+    if (!shown) setTimeout(() => {
+      try { sessionStorage.setItem('im', '1'); } catch (e) {}
+      document.getElementById('im-name').textContent = name;
+      document.getElementById('im-uin').textContent = String(100000000 + Math.floor(Math.random() * 899999999));
+      im.hidden = false;
+      requestAnimationFrame(() => requestAnimationFrame(() => im.classList.add('show')));
+      setTimeout(() => {
+        const box = document.getElementById('im-msg'); box.textContent = '';
+        let i = 0;
+        const tick = () => { box.textContent = text.slice(0, ++i); if (i < text.length) setTimeout(tick, 28); };
+        tick();
+      }, 1600);
+    }, 14000);
+  }
   /* ---------- scroll progress ---------- */
   const prog = document.getElementById('prog');
   addEventListener('scroll', () => {
