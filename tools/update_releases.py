@@ -31,7 +31,22 @@ for repo in repos:
     if not rel or "tag_name" not in rel:
         print(f"{repo}: no release")
         continue
+    # downloads of every release ever made: MPC files apart from the rest, data files not counted
+    dl = {"mpc": 0, "main": 0}
+    page = 1
+    while True:
+        rels = get(f"https://api.github.com/repos/{OWNER}/{repo}/releases?per_page=100&page={page}") or []
+        for r in rels:
+            for a in r.get("assets", []):
+                name = a["name"].lower()
+                if name.endswith(".json"):
+                    continue
+                dl["mpc" if "mpc" in name else "main"] += a.get("download_count", 0)
+        if len(rels) < 100:
+            break
+        page += 1
     data["repos"][repo] = {
+        "downloads": dl,
         "tag": rel["tag_name"],
         "date": rel.get("published_at"),
         "url": rel.get("html_url"),

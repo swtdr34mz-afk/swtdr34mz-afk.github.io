@@ -186,6 +186,7 @@
   .card.flash{animation:flash 1.6s ease-out}
   @keyframes flash{0%{box-shadow:0 0 0 2px var(--cyan),0 0 60px #00f6ffaa}100%{box-shadow:0 0 0 0 transparent}}
   @media (max-width:700px){.ticker{margin:-22px -20px 4px}.ticker .lbl{display:none}}
+  .dls{font:12px var(--mono);letter-spacing:.06em;color:#7fdfe3}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -901,6 +902,20 @@
           b.className = 'ver new';
           b.textContent = 'NEW';
           ver.parentNode.prepend(b);
+        }
+        // how often it was downloaded (MPC cards count the MPC files, the others everything else)
+        if (rel.downloads) {
+          const isMpc = !!card.closest('#mpc');
+          const n = isMpc ? rel.downloads.mpc : rel.downloads.main;
+          if (n > 0) {
+            let d = card.querySelector('.dls');
+            if (!d) {
+              d = document.createElement('div'); d.className = 'dls';
+              const acts = card.querySelector('.actions');
+              acts.parentNode.insertBefore(d, acts);
+            }
+            d.textContent = '↓ ' + n.toLocaleString('en-US') + (n === 1 ? ' download' : ' downloads');
+          }
         }
         const ext = card.dataset.asset;
         const dl = card.querySelector('[data-dl]');
