@@ -36,22 +36,36 @@
       padding:14px clamp(16px,4vw,48px);background:#000c;backdrop-filter:blur(10px);border-bottom:1px solid #0d1d1f}
   .brand{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:800;letter-spacing:.18em;color:var(--text);font-size:14px}
   .brand img{width:28px;height:28px;border-radius:50%;mix-blend-mode:screen}
+  .brand img.tagsm{width:auto;height:18px;border-radius:0;mix-blend-mode:normal}
   nav ul{display:flex;gap:clamp(12px,3vw,32px);list-style:none;margin:0;padding:0;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
   nav ul a{color:var(--muted);transition:color .2s}
   nav ul a:hover{color:var(--cyan)}
 
   /* ---------- hero ---------- */
-  .hero{position:relative;min-height:86vh;display:grid;place-items:center;overflow:hidden;padding:80px 20px 60px;text-align:center}
-  .hero::before,.hero::after{content:"";position:absolute;background:var(--axis);pointer-events:none}
-  .hero::before{left:0;right:0;top:50%;height:1px}
-  .hero::after{top:0;bottom:0;left:50%;width:1px}
-  .hero .glow{position:absolute;inset:0;margin:auto;width:min(700px,110vw);aspect-ratio:1;border-radius:50%;
-         background:radial-gradient(closest-side,#00f6ff26,transparent 70%);pointer-events:none}
-  @keyframes breathe{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.035);opacity:1}}
-  .hero-text{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px}
-  .hero h1{margin:0;font-family:var(--mono);font-weight:800;font-size:clamp(40px,9vw,112px);letter-spacing:.08em;line-height:1;
-           color:#fff;text-shadow:0 0 18px #00f6ffaa,0 0 60px #00f6ff66;mix-blend-mode:normal}
-  .hero p{margin:0;max-width:520px;font-size:clamp(16px,2.2vw,20px);color:#e9feff;text-shadow:0 1px 12px #000}
+  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        gap:clamp(14px,2.5vh,26px);overflow:hidden;padding:90px 20px 70px;text-align:center}
+  .scopewrap{position:relative;width:min(400px,78vw,42vh);aspect-ratio:1;flex:none}
+  .scopewrap::before,.scopewrap::after{content:"";position:absolute;background:var(--axis);pointer-events:none}
+  .scopewrap::before{left:-40%;right:-40%;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--axis) 25%,var(--axis) 75%,transparent)}
+  .scopewrap::after{top:-12%;bottom:-12%;left:50%;width:1px;background:linear-gradient(transparent,var(--axis) 20%,var(--axis) 80%,transparent)}
+  .hero .glow{position:absolute;inset:-25%;border-radius:50%;background:radial-gradient(closest-side,#00f6ff2a,transparent 70%);pointer-events:none}
+  #scope{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+  .hero h1{margin:0;line-height:0}
+  .hero h1 img{width:min(560px,86vw);height:auto;filter:drop-shadow(0 0 14px #00f6ff88) drop-shadow(0 0 40px #00f6ff44);animation:glitch 7s steps(1) infinite}
+  @keyframes glitch{
+    0%,93%,100%{transform:none;filter:drop-shadow(0 0 14px #00f6ff88) drop-shadow(0 0 40px #00f6ff44)}
+    94%{transform:translateX(-4px) skewX(-6deg);filter:drop-shadow(5px 0 0 #00f6ff) drop-shadow(-5px 0 0 #ff2bd6)}
+    95%{transform:translateX(3px);filter:drop-shadow(-4px 0 0 #00f6ff) drop-shadow(4px 0 0 #ff2bd6)}
+    96%{transform:none;opacity:.6}
+    97%{opacity:1}}
+  .term{min-height:3.4em;max-width:640px;font:500 clamp(15px,2.3vw,20px)/1.6 var(--mono);color:var(--cyan);text-shadow:0 0 10px #00f6ff88;text-align:left;
+        display:flex;flex-direction:column;align-items:flex-start}
+  .term .ln::before{content:"> ";color:#4d8f93}
+  .term .ln.done{color:#9fe9ec;text-shadow:none}
+  .cur{display:inline-block;width:.6em;height:1.1em;margin-left:2px;vertical-align:-.15em;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .hero .cta{opacity:0;transform:translateY(10px);transition:opacity .8s,transform .8s}
+  .hero .cta.show{opacity:1;transform:none}
   .cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
 
   .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border:1px solid var(--cyan);border-radius:2px;
@@ -125,7 +139,6 @@
   }
 
   /* live scope */
-  #scope{position:absolute;inset:0;margin:auto;width:min(640px,96vw);aspect-ratio:1;z-index:1}
 
   /* progress bar */
   #prog{position:fixed;left:0;top:0;height:2px;width:0;background:var(--cyan);box-shadow:0 0 8px var(--cyan);z-index:20}
@@ -166,7 +179,7 @@
 <body>
 
 <nav>
-  <a class="brand" href="#top"><img src="img/logo.jpg" alt="">SWTDR34MZ</a>
+  <a class="brand" href="#top"><img src="img/logo.jpg" alt=""><img class="tagsm" src="img/tag.png" alt="SWTDR34MZ"></a>
   <ul>
     <li><a href="#what">About</a></li>
     <li><a href="#vst">VST</a></li>
@@ -178,16 +191,15 @@
 </nav>
 
 <header class="hero" id="top">
-  <div class="glow"></div>
-  <canvas id="scope" aria-hidden="true"></canvas>
-  <div class="hero-text">
-    <h1>SWTDR34MZ</h1>
-    <p>Synth plugins for your DAW and your MPC, and mods for the M-VAVE FM-1. Free to download, made for playing.</p>
-    <div class="cta">
-      <a class="btn solid" href="#vst">VST Plugins</a>
-      <a class="btn ghost" href="#mpc">MPC</a>
-      <a class="btn ghost" href="#fm1">FM-1 Mods</a>
-    </div>
+  <div class="scopewrap"><div class="glow"></div><canvas id="scope" aria-hidden="true"></canvas></div>
+  <h1><img src="img/tag.png" alt="SWTDR34MZ"></h1>
+  <div class="term" id="term" aria-label="Synth plugins for your DAW and your MPC, and mods for the M-VAVE FM-1. All free.">
+    <noscript>Synth plugins for your DAW and your MPC, and mods for the M-VAVE FM-1. All free.</noscript>
+  </div>
+  <div class="cta" id="cta">
+    <a class="btn solid" href="#vst">VST Plugins</a>
+    <a class="btn ghost" href="#mpc">MPC</a>
+    <a class="btn ghost" href="#fm1">FM-1 Mods</a>
   </div>
 </header>
 <div id="prog"></div>
@@ -511,7 +523,7 @@
     const cx = W / 2 + mx * 20, cy = H / 2 + my * 20, s = Math.min(W, H);
 
     // the noise cloud of the logo: tall, jagged, always moving
-    const n = 260, sx = s * .27 * energy, sy = s * .5 * energy;
+    const n = 260, sx = s * .24 * energy, sy = s * .44 * energy;
     for (let pass = 0; pass < 2; pass++) {
       ctx.strokeStyle = pass ? 'rgba(0,246,255,0.5)' : 'rgba(0,200,210,0.18)';
       ctx.lineWidth = pass ? .9 : 1.6;
@@ -527,6 +539,35 @@
   };
   size();
   requestAnimationFrame(frame);
+
+
+  /* ---------- terminal intro, typed like an old monitor ---------- */
+  const term = document.getElementById('term'), cta = document.getElementById('cta');
+  const scenes = [
+    {t: 'Wake up, producer...', hold: 1400, clear: true},
+    {t: 'The signal has you.', hold: 1200, clear: true},
+    {t: 'Follow the noise.', hold: 1300, clear: true},
+    {t: 'Synths for your DAW, your MPC and the FM-1.', hold: 300},
+    {t: 'All free. Plug in and play.', hold: 0, last: true},
+  ];
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const cur = document.createElement('span'); cur.className = 'cur';
+  (async () => {
+    term.textContent = '';
+    for (const sc of scenes) {
+      const ln = document.createElement('div'); ln.className = 'ln'; term.append(ln);
+      for (const ch of sc.t) {
+        ln.textContent += ch; ln.append(cur);
+        await sleep(ch === ' ' ? 35 : 45 + Math.random() * 70);
+        if (ch === ',' || ch === '.') await sleep(120);
+      }
+      await sleep(sc.hold);
+      if (sc.clear) { term.textContent = ''; await sleep(350); }
+      else if (!sc.last) ln.classList.add('done');
+    }
+    cta.classList.add('show');
+  })();
+  setTimeout(() => cta.classList.add('show'), 9000);
 
   /* ---------- scroll progress ---------- */
   const prog = document.getElementById('prog');
