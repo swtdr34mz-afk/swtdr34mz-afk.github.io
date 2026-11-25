@@ -184,6 +184,14 @@
 
   @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.wave path,.hint,.fw .card:hover .shot::after{animation:none}}
 
+  /* discord */
+  .discord{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px}
+  .discord .big{font:800 44px/1 var(--mono);color:var(--cyan);margin-bottom:14px;text-shadow:0 0 18px #00f6ff66}
+  .discord h3{color:var(--text)}
+  .discord ul{margin:0 0 12px;padding-left:20px;color:#bfdfe0;font-size:14.5px}
+  .discord li{margin:6px 0}
+  .discord .note{margin:0}
+
 </style>
 </head>
 <body>
@@ -196,6 +204,7 @@
     <li><a href="#mpc">MPC</a></li>
     <li><a href="#fm1">FM-1</a></li>
     <li><a href="#install">Install</a></li>
+    <li><a href="#community">Discord</a></li>
     <li><a href="https://github.com/swtdr34mz-afk" target="_blank" rel="noopener">GitHub</a></li>
   </ul>
 </nav>
@@ -210,6 +219,7 @@
     <a class="btn solid" href="#vst">VST Plugins</a>
     <a class="btn ghost" href="#mpc">MPC</a>
     <a class="btn ghost" href="#fm1">FM-1 Mods</a>
+    <a class="btn ghost" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Discord</a>
   </div>
 </header>
 <div id="prog"></div>
@@ -484,11 +494,32 @@
   </div>
 </section>
 
+<section id="community">
+  <div class="sec-head">
+    <span class="idx">05</span><h2>COMMUNITY</h2>
+    <p>Found a bug? Have an idea? Made a cool sound? Come say hi.</p>
+  </div>
+  <div class="discord box">
+    <div class="dtext">
+      <div class="big">DISCORD</div>
+      <h3>swtdr34mz aud1o</h3>
+      <ul>
+        <li><b>#bug-meldungen</b>: report bugs, one post per bug, tagged by plugin</li>
+        <li><b>#feature-wünsche</b>: wish for features and vote on other ideas</li>
+        <li><b>#sounds-zeigen</b>: share what you made with the plugins and mods</li>
+        <li><b>#ankündigungen</b>: new releases first</li>
+      </ul>
+      <p class="note">German and English both welcome.</p>
+    </div>
+    <a class="btn solid" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Join the Discord</a>
+  </div>
+</section>
+
 <footer>
   <img class="tag" src="img/tag.png" alt="swtdr34mz">
   <p>All plugins and mods are free, made by swtdr34mz.</p>
   <p>Unofficial projects. Not made, endorsed or supported by Sequential, Moog, Nord / Clavia, Elta Music, M-VAVE or Akai. All trademarks belong to their owners.</p>
-  <p><a href="https://github.com/swtdr34mz-afk" target="_blank" rel="noopener">github.com/swtdr34mz-afk</a></p>
+  <p><a href="https://github.com/swtdr34mz-afk" target="_blank" rel="noopener">github.com/swtdr34mz-afk</a> · <a href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Discord</a></p>
 </footer>
 <script>
 {
