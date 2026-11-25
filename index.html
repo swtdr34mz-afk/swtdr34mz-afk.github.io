@@ -964,7 +964,14 @@
       ['Detlef, 56, Bassist', 'zu viele Knöpfe hier. trotzdem geil.'],
       ['The Cat', 'fffffffffffffff;;;;;;;;;;;;; mrrrp'],
     ];
-    const [name, text] = msgs[Math.floor(Math.random() * msgs.length)];
+    // a different message on every visit: go round the list, starting somewhere random
+    let k;
+    try {
+      const last = parseInt(localStorage.getItem('im-k'), 10);
+      k = Number.isNaN(last) ? Math.floor(Math.random() * msgs.length) : (last + 1) % msgs.length;
+      localStorage.setItem('im-k', String(k));
+    } catch (e) { k = Math.floor(Math.random() * msgs.length); }
+    const [name, text] = msgs[k];
     // the contact list: everybody from the guestbook
     const list = document.getElementById('im-list');
     document.querySelectorAll('.gb-entry .gb-head b').forEach(b => {
