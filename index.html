@@ -794,11 +794,6 @@
         <p>Zu viele Knöpfe. 5 Sterne.</p>
       </div>
       <div class="gb-entry">
-        <div class="gb-head"><b>UIN 23051998</b><span>2001</span></div>
-        <div class="gb-from">from: status Away</div>
-        <p>Away message: making beats with ARIA. If you nudge me one more time I'm adding you to the ignore list.</p>
-      </div>
-      <div class="gb-entry">
         <div class="gb-head"><b>The Cat</b><span>just now</span></div>
         <div class="gb-from">from: on your keyboard</div>
         <p>jkkkkkkkkkkkkkkkkkkkkkkkkkkk;;;;;;;;''''''' ppppppp</p>
@@ -979,7 +974,7 @@
       const n = b.textContent.trim();
       const row = document.createElement('div');
       const dot = document.createElement('i');
-      const away = n !== name && (n.startsWith('UIN') || n === 'The Cat');
+      const away = n !== name && n === 'The Cat';
       if (away) dot.className = 'na';
       const label = document.createElement('span');
       label.textContent = n + (away ? ' \u00b7 N/A' : '');
