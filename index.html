@@ -171,6 +171,8 @@
   .what .box p:last-child{margin:0}
   .what .box .big{font:800 44px/1 var(--mono);color:var(--cyan);margin-bottom:14px;text-shadow:0 0 18px #00f6ff66}
   .what .box a{border-bottom:1px solid #00f6ff55}
+  .stats-only{padding-top:0;padding-bottom:clamp(16px,3vw,32px)}
+  .stats-only .stats{margin-top:0}
   .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:22px;border:1px solid var(--line);background:var(--panel)}
   .stats div{padding:22px 10px;text-align:center;border-left:1px solid var(--line)}
   .stats div:first-child{border-left:0}
@@ -292,7 +294,6 @@
 <nav>
   <a class="brand" href="#top"><img src="img/logo.jpg" alt=""><img class="tagsm" src="img/tag.png" alt="SWTDR34MZ"></a>
   <ul>
-    <li><a href="#what">About</a></li>
     <li><a href="#vst">VST</a></li>
     <li><a href="#mpc">MPC</a></li>
     <li><a href="#fm1">FM-1</a></li>
@@ -318,31 +319,7 @@
 </header>
 <div id="prog"></div>
 
-<section id="what">
-  <div class="sec-head">
-    <span class="idx">00</span><h2>NEW HERE?</h2>
-    <p>Three kinds of instruments, all free. Here is what they are.</p>
-  </div>
-  <div class="what">
-    <div class="box">
-      <div class="big">VST</div>
-      <h3>For your computer</h3>
-      <p>A software instrument that runs inside your music program: Cubase, Ableton, FL Studio, Logic and so on. Put it on a track and play it with a MIDI keyboard, or draw the notes in.</p>
-      <p>No music program? Every plugin also comes as a <b>standalone app</b>. Plug in a keyboard and play.</p>
-    </div>
-    <div class="box">
-      <div class="big">MPC</div>
-      <h3>For your groovebox</h3>
-      <p>The same instruments on Akai's standalone MPCs. They run right on the device, no computer needed.</p>
-      <p>Load them like any other MPC plugin and sequence them with your beats.</p>
-    </div>
-    <div class="box">
-      <div class="big">FM-1</div>
-      <h3>For a tiny keyboard</h3>
-      <p>The M-VAVE FM-1 is a small, cheap keyboard synth. Its sound comes from firmware you can swap, and each mod here turns it into a completely different instrument: a drone machine, a drum computer, an arcade game you play with chords.</p>
-      <p>Don't own one? Some of them <a href="#fm1">run in your browser</a>.</p>
-    </div>
-  </div>
+<section id="what" class="stats-only">
   <div class="stats">
     <div><b data-count="8" data-of="vst">8</b><span>VST plugins</span></div>
     <div><b data-count="5" data-of="mpc">5</b><span>MPC plugins</span></div>
