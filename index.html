@@ -218,23 +218,39 @@
   .gb-entry p{margin:0;color:#bfdfe0;font-size:14.5px;overflow-wrap:anywhere}
   @media (max-width:640px){.gb-side{align-items:flex-start}}
 
-  /* ---------- 2001 messenger popup ---------- */
-  .im{position:fixed;right:18px;bottom:18px;z-index:40;width:min(320px,calc(100vw - 36px));background:#0a1415;border:1px solid #2b5c60;
-      box-shadow:0 12px 40px #000c,0 0 0 1px #000,0 0 30px #00f6ff22;font:13px var(--mono);color:var(--text);
+  /* ---------- 2001 messenger popup (classic grey window) ---------- */
+  .im{position:fixed;right:18px;bottom:18px;z-index:40;width:min(330px,calc(100vw - 36px));padding:3px;
+      background:#d4d0c8;box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf,0 10px 34px #000c;
+      font:11px/1.35 Tahoma,"MS Sans Serif",Verdana,sans-serif;color:#000;
       transform:translateY(140%);transition:transform .5s cubic-bezier(.2,.9,.3,1.2)}
   .im.show{transform:none}
-  .im-bar{display:flex;align-items:center;gap:8px;padding:6px 8px;background:linear-gradient(90deg,#0b3a3e,#06606a);color:#e9feff;font-weight:700;letter-spacing:.04em}
-  .im-dot{width:10px;height:10px;border-radius:50%;background:#5dff5d;box-shadow:0 0 6px #5dff5d}
-  .im-bar span{flex:1}
-  .im-x{width:20px;height:18px;border:1px solid #8fd;background:#0a1415;color:#e9feff;font:700 11px/1 var(--mono);cursor:pointer}
-  .im-x:hover{background:#ff2bd6;border-color:#ff2bd6}
-  .im-body{padding:10px 12px 12px}
-  .im-who{font-size:11px;color:var(--muted);margin-bottom:6px}
-  .im-who b{color:#ff6bd6}
-  .im-msg{min-height:3.2em;padding:8px 10px;background:#000;border:1px inset #1d4246;color:#e9feff;line-height:1.45}
-  .im-typing{color:var(--muted);font-style:italic}
-  .im-acts{display:flex;gap:8px;margin-top:10px}
-  .im-acts .btn{padding:7px 10px;font-size:10.5px}
+  .im-bar{display:flex;align-items:center;gap:6px;padding:3px 3px 3px 5px;background:linear-gradient(90deg,#0a246a,#a6caf0);color:#fff;font-weight:700}
+  .im-dot{width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b8ff9c,#2fb52a 60%,#16700f);box-shadow:0 0 0 1px #0b4a08}
+  .im-bar span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .im-x{width:16px;height:14px;padding:0;border:0;background:#d4d0c8;box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;color:#000;font:700 10px/1 Tahoma,sans-serif;cursor:pointer}
+  .im-x:active{box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #dfdfdf}
+  .im-tools{display:flex;gap:3px;padding:4px 2px}
+  .im-tools i{width:24px;height:22px;display:grid;place-items:center;font-style:normal;font-size:12px;color:#0a246a;background:#d4d0c8;box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf}
+  .im-sec{display:flex;align-items:center;gap:6px;margin:2px 2px 0;color:#000}
+  .im-sec::before,.im-sec::after{content:"";flex:1;height:0;border-top:1px solid #808080;border-bottom:1px solid #fff}
+  .im-list{max-height:86px;overflow:auto;margin:3px 2px 4px;padding:3px 4px;background:#fff;box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #dfdfdf}
+  .im-list div{display:flex;align-items:center;gap:6px;padding:1px 2px;color:#0000c8}
+  .im-list div.on{background:#0a246a;color:#fff}
+  .im-list i{width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#b8ff9c,#2fb52a 60%,#16700f)}
+  .im-list i.na{background:radial-gradient(circle at 35% 35%,#ffb0a8,#d7261c 60%,#7d0f09)}
+  .im-body{padding:0 2px}
+  .im-log{height:78px;overflow:auto;padding:5px 7px;background:#fff;box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #dfdfdf}
+  .im-log .who{font-weight:700;color:#0000c8}
+  .im-log p{margin:0 0 5px}
+  .im-typing{color:#808080;font-style:italic}
+  .im-in{display:flex;gap:4px;margin-top:4px}
+  .im-field{flex:1;min-height:22px;padding:4px 6px;background:#fff;box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #dfdfdf;color:#808080}
+  .im-send{display:grid;place-items:center;padding:0 14px;background:#d4d0c8;box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;color:#000;font:700 11px Tahoma,sans-serif;text-decoration:none}
+  .im-send:active{box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #dfdfdf}
+  .im-foot{display:flex;gap:3px;margin:4px 2px 1px}
+  .im-foot span{flex:1;padding:2px 6px;box-shadow:inset 1px 1px #808080, inset -1px -1px #fff;white-space:nowrap}
+  .im-foot button{padding:2px 8px;border:0;background:#d4d0c8;box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;font:11px Tahoma,sans-serif;cursor:pointer}
+  .im-foot button:active{box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #dfdfdf}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -791,15 +807,18 @@
 </section>
 
 <div class="im" id="im" role="dialog" aria-label="Message" hidden>
-  <div class="im-bar"><i class="im-dot"></i><span>uh-oh! &mdash; 1 new message</span><button class="im-x" id="im-x" type="button" aria-label="Close">x</button></div>
+  <div class="im-bar"><i class="im-dot"></i><span id="im-title">SynthBuddy &ndash; Message Session</span><button class="im-x" id="im-x" type="button" aria-label="Close">&#x2715;</button></div>
+  <div class="im-tools" aria-hidden="true"><i>&#9786;</i><i>&#9835;</i><i>&#9998;</i><i>&#9993;</i><i>&#9881;</i></div>
+  <div class="im-sec">Online</div>
+  <div class="im-list" id="im-list" aria-hidden="true"></div>
   <div class="im-body">
-    <div class="im-who"><b id="im-name">SynthBuddy</b> (UIN <span id="im-uin">1337420</span>) &middot; online</div>
-    <div class="im-msg" id="im-msg"><span class="im-typing">is typing...</span></div>
-    <div class="im-acts">
-      <a class="btn solid" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Reply on Discord</a>
-      <button class="btn ghost" id="im-later" type="button">Set status: Away</button>
+    <div class="im-log" id="im-log"><p class="im-typing" id="im-typing"><span id="im-name">SynthBuddy</span> is typing a message...</p></div>
+    <div class="im-in">
+      <div class="im-field">reply on Discord...</div>
+      <a class="im-send" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener">Send</a>
     </div>
   </div>
+  <div class="im-foot"><span>UIN <span id="im-uin">1337420</span></span><span>Online</span><button id="im-later" type="button">Set status: Away</button></div>
 </div>
 
 <footer>
@@ -936,13 +955,31 @@
   {
     const im = document.getElementById('im');
     const msgs = [
-      ['SynthBuddy', 'hey!! r u there?? new synths are out, check the top of the page :D'],
-      ['xX_Ravegirl_Xx', 'brb, my mom needs the phone line. download the synths before she hangs up!!'],
+      ['xX_DarkSynth_Xx', 'hey!! r u there?? new synths are out, check the top of the page :D'],
+      ['Kevin (14)', 'brb, my mom needs the phone line. download the synths before she hangs up!!'],
       ['DJ Toaster', 'a/s/l? 128bpm/m/bassline. downloaded PROPHET 67 yet?'],
-      ['Kevin (14)', 'did u see?? my FM-1 has like 9 new brains now. lol'],
-      ['MidiMike', '*nudge* *nudge* the synths are free. FREE. what r u waiting 4'],
+      ['Oma Hildegard', 'Hallo? Ist das hier das Internet? Ich glaube ich habe ein FM-1 bestellt.'],
+      ['A Time Traveller', 'don\'t ask how I got your UIN. just download OFFWORLD. trust me.'],
+      ['Someone from Accounting', '*nudge* the synths cost 0 €. please confirm in writing.'],
+      ['Detlef, 56, Bassist', 'zu viele Knöpfe hier. trotzdem geil.'],
+      ['The Cat', 'fffffffffffffff;;;;;;;;;;;;; mrrrp'],
     ];
     const [name, text] = msgs[Math.floor(Math.random() * msgs.length)];
+    // the contact list: everybody from the guestbook
+    const list = document.getElementById('im-list');
+    document.querySelectorAll('.gb-entry .gb-head b').forEach(b => {
+      const n = b.textContent.trim();
+      const row = document.createElement('div');
+      const dot = document.createElement('i');
+      const away = n !== name && (n.startsWith('UIN') || n === 'The Cat');
+      if (away) dot.className = 'na';
+      const label = document.createElement('span');
+      label.textContent = n + (away ? ' \u00b7 N/A' : '');
+      row.append(dot, label);
+      if (n === name) row.className = 'on';
+      list.append(row);
+    });
+    const sel = list.querySelector('.on');
     let shown = false;
     try { shown = sessionStorage.getItem('im') === '1'; } catch (e) {}
     const close = () => { im.classList.remove('show'); setTimeout(() => { im.hidden = true; }, 500); };
@@ -951,15 +988,21 @@
     if (!shown) setTimeout(() => {
       try { sessionStorage.setItem('im', '1'); } catch (e) {}
       document.getElementById('im-name').textContent = name;
+      document.getElementById('im-title').textContent = name + ' \u2013 Message Session';
       document.getElementById('im-uin').textContent = String(100000000 + Math.floor(Math.random() * 899999999));
       im.hidden = false;
       requestAnimationFrame(() => requestAnimationFrame(() => im.classList.add('show')));
+      if (sel) list.scrollTop = sel.offsetTop - list.offsetTop - 20;
       setTimeout(() => {
-        const box = document.getElementById('im-msg'); box.textContent = '';
+        const log = document.getElementById('im-log');
+        const now = new Date().toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit'});
+        log.textContent = '';
+        const who = document.createElement('div'); who.className = 'who'; who.textContent = name + ' (' + now + '):';
+        const p = document.createElement('p'); log.append(who, p);
         let i = 0;
-        const tick = () => { box.textContent = text.slice(0, ++i); if (i < text.length) setTimeout(tick, 28); };
+        const tick = () => { p.textContent = text.slice(0, ++i); if (i < text.length) setTimeout(tick, 28); };
         tick();
-      }, 1600);
+      }, 1800);
     }, 14000);
   }
   /* ---------- scroll progress ---------- */
