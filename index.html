@@ -44,7 +44,7 @@
   /* ---------- hero ---------- */
   .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
         gap:clamp(14px,2.5vh,26px);overflow:hidden;padding:90px 20px 70px;text-align:center}
-  .scopewrap{position:relative;width:min(400px,78vw,42vh);aspect-ratio:1;flex:none}
+  .scopewrap{position:relative;width:min(500px,80vw,52vh);aspect-ratio:1;flex:none}
   .scopewrap::before,.scopewrap::after{content:"";position:absolute;background:var(--axis);pointer-events:none}
   .scopewrap::before{left:-40%;right:-40%;top:50%;height:1px;background:linear-gradient(90deg,transparent,var(--axis) 25%,var(--axis) 75%,transparent)}
   .scopewrap::after{top:-12%;bottom:-12%;left:50%;width:1px;background:linear-gradient(transparent,var(--axis) 20%,var(--axis) 80%,transparent)}
@@ -66,6 +66,10 @@
   @keyframes blink{50%{opacity:0}}
   .hero .cta{opacity:0;transform:translateY(10px);transition:opacity .8s,transform .8s}
   .hero .cta.show{opacity:1;transform:none}
+  @media (max-width:700px){
+    .hero{min-height:auto;padding:28px 20px 64px;gap:16px}
+    .scopewrap{width:min(440px,100vw);margin:-2% 0 -12%}
+  }
   .cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
 
   .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border:1px solid var(--cyan);border-radius:2px;
@@ -523,7 +527,7 @@
     const cx = W / 2 + mx * 20, cy = H / 2 + my * 20, s = Math.min(W, H);
 
     // the noise cloud of the logo: tall, jagged, always moving
-    const n = 260, sx = s * .24 * energy, sy = s * .44 * energy;
+    const n = 260, sx = s * .27 * energy, sy = s * .5 * energy;
     for (let pass = 0; pass < 2; pass++) {
       ctx.strokeStyle = pass ? 'rgba(0,246,255,0.5)' : 'rgba(0,200,210,0.18)';
       ctx.lineWidth = pass ? .9 : 1.6;
