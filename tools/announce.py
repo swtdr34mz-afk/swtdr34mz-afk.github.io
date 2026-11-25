@@ -44,6 +44,7 @@ def cards():
             c["img"] = SITE + m.group(1) if m else None
             m = re.search(r'href="([^"]+/emu/)"', a)
             c["play"] = m.group(1) if m else None
+            c.setdefault("by", {})[area] = {"what": c["what"], "img": c["img"]}   # each section's own text and picture
     return out
 
 def load(path):
@@ -94,26 +95,29 @@ def main():
             lines.append(f"**Out now** ({', '.join(AREA[a] for a in c['areas'])})")
         elif was:
             lines.append(f"**Update:** {was} → {rel['tag']}")
-        lines.append(c["what"])
-        notes = re.sub(r"🤖 Generated with.*", "", rel.get("notes") or "", flags=re.S).strip()
-        notes = re.sub(r"https://claude\.ai/\S+", "", notes).strip()
-        if notes:
-            lines.append("")
-            lines.append(notes[:700])
-        links = [f"[Download]({rel['url']})"]
-        if c.get("play"):
-            links.append(f"[▶ Play in your browser]({c['play']})")
-        links.append(f"[Source](https://github.com/{OWNER}/{repo})")
-        links.append(f"[All instruments]({SITE})")
-        lines.append("")
-        lines.append(" · ".join(links))
-        embed = {"title": title, "url": rel["url"], "description": "\n".join(lines)[:4000], "color": COLOR}
-        if c.get("img"):
-            embed["image"] = {"url": c["img"]}
-        payload = {"username": "swtdr34mz releases", "embeds": [embed],
-                   "content": "🎉 New instrument out now!" if first else "🎉 Out now!" if again else "🔧 New update out now!"}
         print(f"{title}: {'new' if first else 'update'} -> {', '.join(c['areas'])}")
+        head = lines
         for area in c["areas"]:
+            c["what"], c["img"] = c["by"][area]["what"], c["by"][area]["img"]
+            lines = list(head)
+            lines.append(c["what"])
+            notes = re.sub(r"🤖 Generated with.*", "", rel.get("notes") or "", flags=re.S).strip()
+            notes = re.sub(r"https://claude\.ai/\S+", "", notes).strip()
+            if notes:
+                lines.append("")
+                lines.append(notes[:700])
+            links = [f"[Download]({rel['url']})"]
+            if c.get("play"):
+                links.append(f"[▶ Play in your browser]({c['play']})")
+            links.append(f"[Source](https://github.com/{OWNER}/{repo})")
+            links.append(f"[All instruments]({SITE})")
+            lines.append("")
+            lines.append(" · ".join(links))
+            embed = {"title": title, "url": rel["url"], "description": "\n".join(lines)[:4000], "color": COLOR}
+            if c.get("img"):
+                embed["image"] = {"url": c["img"]}
+            payload = {"username": "swtdr34mz releases", "embeds": [embed],
+                       "content": "🎉 New instrument out now!" if first else "🎉 Out now!" if again else "🔧 New update out now!"}
             hook = os.environ.get(f"DISCORD_WEBHOOK_{area.upper()}", "")
             if not hook and not dry:
                 print(f"  no webhook for {area}: skipped")
