@@ -50,14 +50,20 @@
   .scopewrap::after{top:-12%;bottom:-12%;left:50%;width:1px;background:linear-gradient(transparent,var(--axis) 20%,var(--axis) 80%,transparent)}
   .hero .glow{position:absolute;inset:-25%;border-radius:50%;background:radial-gradient(closest-side,#00f6ff2a,transparent 70%);pointer-events:none}
   #scope{position:absolute;inset:0;width:100%;height:100%;z-index:1}
-  .hero h1{margin:0;line-height:0}
-  .hero h1 img{width:min(560px,86vw);height:auto;filter:drop-shadow(0 0 14px #00f6ff88) drop-shadow(0 0 40px #00f6ff44);animation:glitch 7s steps(1) infinite}
-  @keyframes glitch{
-    0%,93%,100%{transform:none;filter:drop-shadow(0 0 14px #00f6ff88) drop-shadow(0 0 40px #00f6ff44)}
-    94%{transform:translateX(-4px) skewX(-6deg);filter:drop-shadow(5px 0 0 #00f6ff) drop-shadow(-5px 0 0 #ff2bd6)}
-    95%{transform:translateX(3px);filter:drop-shadow(-4px 0 0 #00f6ff) drop-shadow(4px 0 0 #ff2bd6)}
-    96%{transform:none;opacity:.6}
-    97%{opacity:1}}
+  .hero h1{margin:0;line-height:0;--k:0;width:min(560px,86vw);
+           transform:scale(calc(1 + var(--k) * .045));
+           filter:drop-shadow(0 0 calc(8px + var(--k) * 22px) #00f6ffaa) drop-shadow(0 0 calc(30px + var(--k) * 30px) #00f6ff55)}
+  .lm,.lm::before,.lm::after{display:block;width:100%;aspect-ratio:900/107;
+      -webkit-mask:url(img/tag.png) center/100% 100% no-repeat;mask:url(img/tag.png) center/100% 100% no-repeat}
+  .lm{position:relative;background:linear-gradient(100deg,#fff 0%,#fff 38%,#7ffbff 46%,#00f6ff 50%,#7ffbff 54%,#fff 62%,#fff 100%) 0 0/250% 100%;
+      animation:shine 3.2s linear infinite, glitch 7s steps(1) infinite}
+  .lm::before,.lm::after{content:"";position:absolute;inset:0;opacity:0;animation:split 7s steps(1) infinite}
+  .lm::before{background:#00f6ff}
+  .lm::after{background:#ff2bd6;animation-name:split2}
+  @keyframes shine{from{background-position:100% 0}to{background-position:-150% 0}}
+  @keyframes glitch{0%,93%,100%{transform:none;opacity:1}94%{transform:translateX(-4px) skewX(-8deg)}95%{transform:translateX(3px)}96%{opacity:.5}97%{opacity:1}}
+  @keyframes split{0%,93%,97%,100%{opacity:0;transform:none}94%{opacity:.9;transform:translate(6px,-1px)}95%{opacity:.9;transform:translate(-5px,1px)}}
+  @keyframes split2{0%,93%,97%,100%{opacity:0;transform:none}94%{opacity:.8;transform:translate(-6px,1px)}95%{opacity:.8;transform:translate(5px,0)}}
   .term{min-height:1.8em;max-width:640px;font:500 clamp(15px,2.3vw,20px)/1.6 var(--mono);color:var(--cyan);text-shadow:0 0 10px #00f6ff88;text-align:left;
         display:flex;flex-direction:column;align-items:flex-start}
   .term .ln::before{content:"> ";color:#4d8f93}
@@ -196,7 +202,7 @@
 
 <header class="hero" id="top">
   <div class="scopewrap"><div class="glow"></div><canvas id="scope" aria-hidden="true"></canvas></div>
-  <h1><img src="img/tag.png" alt="SWTDR34MZ"></h1>
+  <h1 id="logo" aria-label="SWTDR34MZ"><span class="lm"></span></h1>
   <div class="term" id="term" aria-label="Free synths. Press start.">
     <noscript>Free synths. Press start.</noscript>
   </div>
@@ -504,6 +510,7 @@
   let energy = 0.6, kick = 0, t0 = performance.now(), lastBeat = 0;
   let mx = 0, my = 0, mouseE = 0, scrollE = 0, lastY = scrollY;
   const hero = document.getElementById('top');
+  const logo = document.getElementById('logo');
   hero.addEventListener('pointermove', e => {
     const r = cv.getBoundingClientRect();
     const nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
@@ -513,7 +520,7 @@
   addEventListener('scroll', () => { scrollE = Math.min(1, scrollE + Math.abs(scrollY - lastY) / 300); lastY = scrollY; }, {passive: true});
 
   const frame = now => {
-    const t = (now - t0) / 1000;
+    const t = Math.max(0, (now - t0) / 1000);
     // a beat every half second, like a kick drum
     if (t - lastBeat > .5) { lastBeat = t; kick = 1; }
     kick *= .9; mouseE *= .95; scrollE *= .93;
@@ -526,19 +533,41 @@
     ctx.globalCompositeOperation = 'lighter';
     const cx = W / 2 + mx * 20, cy = H / 2 + my * 20, s = Math.min(W, H);
 
-    // the noise cloud of the logo: tall, jagged, always moving
-    const n = 260, sx = s * .27 * energy, sy = s * .5 * energy;
+    // ---- morphing scope: the logo's noise cloud and classic scope figures ----
+    const TAU = Math.PI * 2;
+    const cloud = () => [gauss() * .81, gauss() * 1.5];
+    const shapes = [
+      u => cloud(),                                                            // the logo
+      u => [Math.sin(3 * TAU * u + t * .9) * .8, Math.sin(2 * TAU * u) * .9], // lissajous 3:2
+      u => [(2 * u - 1) * .95, Math.sin(3 * TAU * u - t * 5) * .45 * (1 - Math.abs(2 * u - 1) * .3)], // sine wave
+      u => cloud(),
+      u => { const r = .72 + .1 * Math.sin(7 * TAU * u + t * 3); return [Math.cos(TAU * u) * r, Math.sin(TAU * u) * r]; }, // wobbling ring
+      u => [Math.sin(5 * TAU * u + t * .6) * .8, Math.sin(4 * TAU * u) * .9], // lissajous 5:4
+      u => cloud(),
+      u => { const a = TAU * u, r = Math.cos(3 * a + t * .4) * .9; return [Math.cos(a) * r, Math.sin(a) * r]; }, // three-petal rose
+      u => [Math.sin(TAU * u + t * .8) * .8, Math.sin(2 * TAU * u) * .9],     // figure eight
+    ];
+    const HOLD = 3.2, MORPH = 1.4, CYC = HOLD + MORPH;
+    const idx = Math.floor(t / CYC) % shapes.length, ph = t % CYC;
+    let m = ph < HOLD ? 0 : (ph - HOLD) / MORPH;
+    m = m * m * (3 - 2 * m);
+    const A = shapes[idx], B = shapes[(idx + 1) % shapes.length];
+    const n = 360, amp = s * .3 * (.75 + .35 * energy), jit = s * .012 * energy;
     for (let pass = 0; pass < 2; pass++) {
-      ctx.strokeStyle = pass ? 'rgba(0,246,255,0.5)' : 'rgba(0,200,210,0.18)';
-      ctx.lineWidth = pass ? .9 : 1.6;
+      ctx.strokeStyle = pass ? 'rgba(0,246,255,0.55)' : 'rgba(0,200,210,0.18)';
+      ctx.lineWidth = pass ? .9 : 1.8;
       ctx.beginPath();
-      let x = cx, y = cy;
       for (let i = 0; i < n; i++) {
-        x = cx + gauss() * sx * (pass ? 1 : 1.25); y = cy + gauss() * sy * (pass ? 1 : 1.2);
+        const u = i / (n - 1), p = A(u), q = B(u);
+        const k = pass ? 1 : 1.15;
+        const x = cx + ((p[0] + (q[0] - p[0]) * m) * amp * .68 * k) + gauss() * jit;
+        const y = cy - ((p[1] + (q[1] - p[1]) * m) * amp * .68 * k) + gauss() * jit;
         i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
       }
       ctx.stroke();
     }
+    // the logo pulses with the same beat
+    logo.style.setProperty('--k', kick.toFixed(3));
     requestAnimationFrame(frame);
   };
   size();
