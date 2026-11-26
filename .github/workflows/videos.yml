@@ -4,9 +4,8 @@
 # Runs once a week and by hand: Actions -> "Plugin videos" -> Run workflow.
 name: Plugin videos
 
+# (switched off on the page for now: only by hand, the page shows the pictures)
 on:
-  schedule:
-    - cron: "23 3 * * 2"
   workflow_dispatch:
 
 permissions:
