@@ -23,7 +23,7 @@
 <meta name="twitter:image" content="https://swtdr34mz-afk.github.io/img/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Space+Grotesk:wght@400;500;700&family=Anton&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#000;
@@ -255,6 +255,56 @@
   .im-foot span{flex:1;padding:2px 6px;box-shadow:inset 1px 1px #808080, inset -1px -1px #fff;white-space:nowrap}
   .im-foot button{padding:2px 8px;border:0;background:#d4d0c8;box-shadow:inset -1px -1px #404040, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;font:11px Tahoma,sans-serif;cursor:pointer}
   .im-foot button:active{box-shadow:inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #404040, inset -2px -2px #dfdfdf}
+
+  /* ---------- fake 90s ad popups (computers only) ---------- */
+  .adpop{position:fixed;left:18px;bottom:18px;z-index:41;width:520px;max-width:calc(100vw - 380px);color:#000;
+          background:#d4d0c8;padding:3px;box-shadow:inset -1px -1px #404040,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dfdfdf,0 12px 36px #000c;font:12px Tahoma,Verdana,sans-serif;
+          transform:translateY(140%) rotate(-1deg);transition:transform .5s cubic-bezier(.2,.9,.3,1.2)}
+  .adpop.show{transform:none}
+  @media (max-width:799px){.adpop{display:none}}
+  .adpop .bar{display:flex;align-items:center;gap:6px;padding:3px 3px 3px 5px;background:linear-gradient(90deg,#0a246a,#a6caf0);color:#fff;font:700 11px Tahoma,sans-serif}
+  .adpop .bar span{flex:1}
+  .adpop .bar button{width:16px;height:14px;padding:0;border:0;background:#d4d0c8;color:#000;font:700 10px/1 Tahoma,sans-serif;cursor:pointer;box-shadow:inset -1px -1px #404040,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dfdfdf}
+  .adpop .ad{height:210px;position:relative;overflow:hidden}
+  .adpop .b98{display:inline-block;padding:5px 14px;background:#d4d0c8;color:#000;font:700 12px Tahoma,sans-serif;text-decoration:none;cursor:pointer;box-shadow:inset -1px -1px #404040,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dfdfdf}
+  .adpop .b98:active{box-shadow:inset 1px 1px #808080,inset -1px -1px #fff,inset 2px 2px #404040}
+  .adpop .bl{animation:blink 1s steps(1) infinite}
+  .adpop .sm{font:9px Tahoma,sans-serif;opacity:.85}
+  .adpop .imp{font-family:Impact,Anton,"Arial Black",sans-serif;font-weight:400}
+  .adpop .cs{font-family:"Comic Sans MS","Comic Neue",cursive;font-weight:700}
+  .ad1{background:repeating-conic-gradient(from 0deg at 50% 60%,#ffe600 0 15deg,#ff9d00 15deg 30deg);text-align:center;padding:12px}
+  .ad1 h2{margin:0;font-size:32px;color:#e00000;text-shadow:2px 2px #fff,4px 4px #000}
+  .ad1 p{margin:6px 0;font-size:15px;background:#fff;display:inline-block;padding:3px 8px;border:3px dashed #e00000}
+  .ad2{background:#000080;color:#fff;display:flex;align-items:center;gap:16px;padding:14px 16px}
+  .ad2 .chip{width:100px;height:150px;flex:none;background:linear-gradient(#1a7a1a,#0c4d0c);border:3px solid #ffd700;display:grid;place-items:center;color:#ffd700;font-size:22px;position:relative}
+  .ad2 .chip::before,.ad2 .chip::after{content:"";position:absolute;top:8px;bottom:8px;width:6px;background:repeating-linear-gradient(#ffd700 0 5px,transparent 5px 10px)}
+  .ad2 .chip::before{left:-10px}.ad2 .chip::after{right:-10px}
+  .ad2 h2{margin:0;font-size:30px;color:#00ff66;text-shadow:0 0 8px #00ff66}
+  .ad2 p{margin:6px 0 10px;font:13px Verdana,sans-serif}
+  .ad3{background:linear-gradient(#fff,#ffeef6);padding:12px 16px;display:flex;gap:16px;align-items:center}
+  .ad3 .knob{width:116px;height:116px;flex:none;border-radius:50%;background:radial-gradient(circle at 40% 35%,#eee,#777 60%,#333);box-shadow:0 6px 0 #222;position:relative;animation:twist 3s ease-in-out infinite}
+  .ad3 .knob::after{content:"";position:absolute;left:54px;top:8px;width:8px;height:38px;background:#e00;border-radius:4px}
+  @keyframes twist{0%,100%{transform:rotate(-120deg)}50%{transform:rotate(140deg)}}
+  .ad3 h2{margin:0;font:700 26px Georgia,serif;color:#c0006a}
+  .ad3 p{margin:6px 0 8px;font:13px Georgia,serif}
+  .ad4{background:#ff00cc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ctext x='4' y='28' font-size='24'%3E%E2%98%85%3C/text%3E%3C/svg%3E");padding:12px;text-align:center}
+  .ad4 h2{margin:4px 0;font-size:28px;color:#ffff00;text-shadow:3px 3px #000}
+  .ad4 .t{font:700 15px Tahoma,sans-serif;color:#fff;text-shadow:1px 1px #000}
+  .ad4 .osc{display:flex;justify-content:center;gap:16px;margin:10px 0}
+  .ad4 .osc i{width:58px;height:58px;border-radius:50%;background:#000;border:3px solid #fff;display:grid;place-items:center;font:700 20px monospace;font-style:normal;color:#0f0;animation:bob 1.6s ease-in-out infinite}
+  .ad4 .osc i:nth-child(2){animation-delay:.3s}.ad4 .osc i:nth-child(3){animation-delay:.6s}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .ad5{background:repeating-linear-gradient(45deg,#ffd800 0 22px,#000 22px 44px);display:grid;place-items:center}
+  .ad5 .in{background:#fff;padding:12px 18px;border:4px solid #000;text-align:center;max-width:430px}
+  .ad5 h2{margin:0;font-size:26px}
+  .ad5 p{margin:6px 0 8px;font:13px Tahoma,sans-serif}
+  .ad6{background:#c0c0c0;padding:12px 16px}
+  .ad6 .cd{float:left;width:124px;height:124px;margin:8px 16px 0 0;border-radius:50%;background:conic-gradient(#f0f,#0ff,#ff0,#0f0,#f0f);position:relative;box-shadow:0 0 0 3px #888;animation:spin 4s linear infinite}
+  .ad6 .cd::after{content:"";position:absolute;inset:50px;border-radius:50%;background:#c0c0c0;box-shadow:0 0 0 3px #888}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ad6 h2{margin:0;font-size:26px;color:#003399}
+  .ad6 .big{font-size:44px;color:#e00000;line-height:1.05}
+  .ad6 p{margin:4px 0 8px;font:13px Arial,sans-serif}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -817,6 +867,49 @@
   <div class="im-foot"><span>UIN <span id="im-uin">1337420</span></span><span>Online</span><button id="im-later" type="button">Set status: Away</button></div>
 </div>
 
+<div class="adpop" data-ad="0" role="dialog" aria-label="Advertisement (a joke)" hidden>
+  <div class="bar"><span>!!! WINNER WINNER !!!</span><button type="button" aria-label="Close">x</button></div>
+  <div class="ad ad1"><h2 class="imp bl">CONGRATULATIONS!!!</h2>
+      <p class="cs">You are the <u>1.000.000th</u> visitor!</p><br>
+      <p class="cs">Claim your FREE pre-owned synthesizer*</p><br>
+      <a class="b98" href="#vst">CLAIM PRIZE</a>
+      <div class="sm" style="margin-top:6px">*knobs, keys, power supply and synthesizer not included</div></div>
+</div>
+<div class="adpop" data-ad="1" role="dialog" aria-label="Advertisement (a joke)" hidden>
+  <div class="bar"><span>MegaByte Bros. Software</span><button type="button" aria-label="Close">x</button></div>
+  <div class="ad ad2"><div class="chip imp">RAM</div><div>
+      <h2 class="imp">DOWNLOAD MORE RAM&trade;</h2>
+      <p>Now with <b style="color:#ffd700">33% more reverb!</b><br>Your synths will think they're in a cathedral.<br>Compatible with Windows 98, 2000, and your toaster.</p>
+      <a class="b98 bl" href="#vst">DOWNLOAD NOW &gt;&gt;</a></div></div>
+</div>
+<div class="adpop" data-ad="2" role="dialog" aria-label="Advertisement (a joke)" hidden>
+  <div class="bar"><span>Knob-Gro&trade; Official Offer</span><button type="button" aria-label="Close">x</button></div>
+  <div class="ad ad3"><div class="knob"></div><div>
+      <h2>Is your filter too small?</h2>
+      <p>Studio engineers <b>HATE</b> this one weird resonance trick!<br><i>"My cutoff went from 2 kHz to 20 kHz in a week."</i> &mdash; Detlef, 56</p>
+      <a class="b98" href="#vst">ORDER KNOB-GRO&trade;</a><div class="sm">Side effects may include self-oscillation.</div></div></div>
+</div>
+<div class="adpop" data-ad="3" role="dialog" aria-label="Advertisement (a joke)" hidden>
+  <div class="bar"><span>OscDate 2000</span><button type="button" aria-label="Close">x</button></div>
+  <div class="ad ad4"><h2 class="cs bl">LONELY OSCILLATORS</h2>
+      <div class="t">in YOUR AREA want to SYNC with you!</div>
+      <div class="osc"><i>~</i><i>&#8851;</i><i>/|</i></div>
+      <a class="b98" href="#community">CHAT NOW (56k required)</a></div>
+</div>
+<div class="adpop" data-ad="4" role="dialog" aria-label="Advertisement (a joke)" hidden>
+  <div class="bar"><span>!! IMPORTANT SYSTEM MESSAGE !!</span><button type="button" aria-label="Close">x</button></div>
+  <div class="ad ad5"><div class="in"><h2 class="imp">IS YOUR SYNTH Y2K-READY?</h2>
+      <p>On 01.01.2000 all LFOs will run <b>backwards</b>.<br>Protect your patches NOW with <b>MilleniumShield&trade;</b>.</p>
+      <a class="b98 bl" href="#fm1">SCAN MY SYNTH</a><div class="sm" style="margin-top:4px">Offer valid until 31.12.1999 23:59</div></div></div>
+</div>
+<div class="adpop" data-ad="5" role="dialog" aria-label="Advertisement (a joke)" hidden>
+  <div class="bar"><span>WebWave Online</span><button type="button" aria-label="Close">x</button></div>
+  <div class="ad ad6"><div class="cd"></div>
+      <h2 class="imp">FREE TRIAL CD!</h2><div class="big imp">500 HOURS</div>
+      <p>of dial-up internet. Plus 3 MB of webspace!<br>Mom says: <i>"Get off the phone line."</i></p>
+      <a class="b98" href="#install">ORDER FREE CD</a></div>
+</div>
+
 <footer>
   <img class="tag" src="img/tag.png" alt="swtdr34mz">
   <p>All plugins and mods are free, made by swtdr34mz.</p>
@@ -1009,6 +1102,24 @@
         tick();
       }, 1800);
     }, 14000);
+  }
+
+  /* ---------- fake 90s ads: computers only, all six, new order every visit ---------- */
+  {
+    const pops = [...document.querySelectorAll('.adpop')];
+    const desktop = innerWidth >= 800 && matchMedia('(any-pointer: fine)').matches;
+    if (desktop && pops.length) {
+      for (let i = pops.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pops[i], pops[j]] = [pops[j], pops[i]]; }
+      let n = 0, timer;
+      const next = delay => { clearTimeout(timer); if (n < pops.length) timer = setTimeout(() => show(pops[n++]), delay); };
+      const hide = p => { p.classList.remove('show'); setTimeout(() => { p.hidden = true; }, 500); next(35000); };
+      const show = p => { p.hidden = false; requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('show'))); };
+      pops.forEach(p => {
+        p.querySelector('.bar button').addEventListener('click', () => hide(p));
+        p.querySelectorAll('a.b98').forEach(a => a.addEventListener('click', () => hide(p)));
+      });
+      next(30000);
+    }
   }
   /* ---------- scroll progress ---------- */
   const prog = document.getElementById('prog');
