@@ -92,29 +92,29 @@ def shot(kind, c, z, rnd):
     cx, cy = c
     d = rnd.choice([-1, 1])
     e = rnd.choice([-1, 1])
-    a = rnd.uniform(0.05, 0.09)
+    a = rnd.uniform(0.025, 0.045)
     if kind == "push":
-        return lambda t: (cx, cy, L(z * 0.86, z * 1.08, t), 0.75, 0.0)
+        return lambda t: (cx, cy, L(z * 0.95, z * 1.03, t), 0.75, 0.0)
     if kind == "pull":
-        return lambda t: (cx, cy, L(z * 1.12, z * 0.88, t), 0.75, 0.0)
+        return lambda t: (cx, cy, L(z * 1.04, z * 0.96, t), 0.75, 0.0)
     if kind == "pan":
         return lambda t: (L(cx - d * a, cx + d * a, t), cy, z, 0.8, 0.0)
     if kind == "tilt":
         return lambda t: (cx, L(cy - d * a, cy + d * a, t), z * 1.05, 0.8, 0.0)
     if kind == "diag":
-        return lambda t: (L(cx - d * a, cx + d * a, t), L(cy - e * a * .7, cy + e * a * .7, t), L(z, z * 1.06, t), 0.8, 0.0)
+        return lambda t: (L(cx - d * a, cx + d * a, t), L(cy - e * a * .7, cy + e * a * .7, t), L(z, z * 1.02, t), 0.8, 0.0)
     if kind == "rack":
-        return lambda t: (L(cx - d * 0.02, cx + d * 0.02, t), cy, z, 1.0, L(-0.45 * d, 0.45 * d, t))
+        return lambda t: (L(cx - d * 0.01, cx + d * 0.01, t), cy, z, 1.0, L(-0.35 * d, 0.35 * d, t))
     raise ValueError(kind)
 
 
 def wide(kind, rnd):
     d = rnd.choice([-1, 1])
     if kind == "push":
-        return lambda t: (0.5, 0.5, L(1.0, 1.14, t), 0.0, 0.0)
+        return lambda t: (0.5, 0.5, L(1.0, 1.05, t), 0.0, 0.0)
     if kind == "pull":
-        return lambda t: (0.5, 0.5, L(1.18, 1.0, t), 0.0, 0.0)
-    return lambda t: (L(0.5 - d * 0.04, 0.5 + d * 0.04, t), 0.5, 1.12, 0.0, 0.0)
+        return lambda t: (0.5, 0.5, L(1.06, 1.0, t), 0.0, 0.0)
+    return lambda t: (L(0.5 - d * 0.015, 0.5 + d * 0.015, t), 0.5, 1.06, 0.0, 0.0)
 
 
 def writer(out):
@@ -152,11 +152,12 @@ def render(out, pieces, rnd, labels=None):
     for idx in range(total):
         im, dof, foc, i = view(idx)
         cut = pieces[i][3]
-        nf = {"fade": int(0.6 * FPS), "dip": int(0.7 * FPS), "whip": int(0.35 * FPS)}[cut]
+        nf = {"fade": int(1.5 * FPS), "dip": int(1.2 * FPS), "whip": int(0.35 * FPS)}[cut]
         nxt = starts[i + 1] if i + 1 < len(pieces) else 0
         end = starts[i + 1] if i + 1 < len(pieces) else total
         left = end - idx
         lab_i = i
+        lab_alpha = 1.0
         if left <= nf:
             im2, dof2, foc2, j = view(nxt + (nf - left))
             a = ease(1 - left / nf)
@@ -177,6 +178,7 @@ def render(out, pieces, rnd, labels=None):
             foc += (foc2 - foc) * a
             if a > 0.5:
                 lab_i = j
+            lab_alpha = abs(a - 0.5) * 2
         sw = None
         for s0 in sweeps:
             s = (idx - s0) / (1.4 * FPS)
@@ -184,11 +186,14 @@ def render(out, pieces, rnd, labels=None):
                 sw = s
         fr = finish(im, dof, foc, sw, sdir)
         if labels and font:
-            d = ImageDraw.Draw(fr)
+            lay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+            d = ImageDraw.Draw(lay)
             lab = labels[lab_i]
             tw = d.textlength(lab, font=font)
-            d.rectangle((28, H - 68, 28 + tw + 26, H - 28), fill=(0, 0, 0), outline=(0, 246, 255), width=2)
-            d.text((41, H - 64), lab, font=font, fill=(0, 246, 255))
+            al = int(255 * lab_alpha)
+            d.rectangle((28, H - 68, 28 + tw + 26, H - 28), fill=(0, 0, 0, al), outline=(0, 246, 255, al), width=2)
+            d.text((41, H - 64), lab, font=font, fill=(0, 246, 255, al))
+            fr = Image.alpha_composite(fr.convert("RGBA"), lay).convert("RGB")
         p.stdin.write(fr.tobytes())
     p.stdin.close()
     p.wait()
@@ -201,18 +206,18 @@ def seed_of(name):
 if __name__ == "__main__":
     mode, out = sys.argv[1], sys.argv[-1]
     rnd = random.Random(seed_of(out.rsplit("/", 1)[-1]))
-    cuts = ["fade", "fade", "dip", "whip"]
+    cuts = ["fade"]          # long, soft crossfades only
     if mode == "vst":
         src = Image.open(sys.argv[2]).convert("RGB")
         n = rnd.choice([2, 3, 3, 4])
         spots = hot_spots(src, 2.4, n)
         rnd.shuffle(spots)
         kinds = rnd.sample(["push", "pull", "pan", "tilt", "diag", "rack"], k=len(spots))
-        pieces = [(rnd.uniform(2.6, 3.6), src, wide(rnd.choice(["push", "pull", "drift"]), rnd), rnd.choice(cuts))]
+        pieces = [(rnd.uniform(5.0, 6.0), src, wide(rnd.choice(["push", "pull", "drift"]), rnd), rnd.choice(cuts))]
         for s, k in zip(spots, kinds):
-            pieces.append((rnd.uniform(2.8, 4.0), src, shot(k, s, rnd.uniform(2.0, 2.8), rnd), rnd.choice(cuts)))
+            pieces.append((rnd.uniform(5.0, 6.5), src, shot(k, s, rnd.uniform(2.0, 2.8), rnd), rnd.choice(cuts)))
         if rnd.random() < 0.5:
-            pieces.insert(rnd.randint(2, len(pieces)), (2.4, src, wide("drift", rnd), "fade"))
+            pieces.insert(rnd.randint(2, len(pieces)), (5.0, src, wide("drift", rnd), "fade"))
         pieces[-1] = pieces[-1][:3] + ("fade",)
         render(out, pieces, rnd)
     elif mode == "pages":
@@ -224,13 +229,13 @@ if __name__ == "__main__":
             labels.append(f.rsplit("/", 1)[-1].rsplit(".", 1)[0].split("_", 1)[-1].replace("-", " "))
             kind = rnd.choice(["push", "pull", "panl", "panr", "drift"])
             fn = {
-                "push": lambda t: (0.5, 0.5, L(1.0, 1.08, t), 0.0, 0.0),
-                "pull": lambda t: (0.5, 0.5, L(1.09, 1.0, t), 0.0, 0.0),
-                "panl": lambda t: (L(0.56, 0.44, t), 0.5, 1.02, 0.0, 0.0),
-                "panr": lambda t: (L(0.44, 0.56, t), 0.5, 1.02, 0.0, 0.0),
-                "drift": lambda t: (L(0.47, 0.53, t), L(0.48, 0.52, t), 1.05, 0.0, 0.0),
+                "push": lambda t: (0.5, 0.5, L(1.0, 1.025, t), 0.0, 0.0),
+                "pull": lambda t: (0.5, 0.5, L(1.03, 1.0, t), 0.0, 0.0),
+                "panl": lambda t: (L(0.53, 0.47, t), 0.5, 1.02, 0.0, 0.0),
+                "panr": lambda t: (L(0.47, 0.53, t), 0.5, 1.02, 0.0, 0.0),
+                "drift": lambda t: (L(0.485, 0.515, t), L(0.49, 0.51, t), 1.03, 0.0, 0.0),
             }[kind]
-            pieces.append((rnd.uniform(2.2, 3.1), im, fn, rnd.choice(cuts)))
+            pieces.append((rnd.uniform(4.2, 5.0), im, fn, rnd.choice(cuts)))
         pieces[-1] = pieces[-1][:3] + ("fade",)
         render(out, pieces, rnd, labels=labels)
     print("wrote", out)
