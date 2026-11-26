@@ -1,10 +1,11 @@
 # Records the moving screens of the FM-1 mods from their browser emulators (img/anim/*.webp)
-# and publishes the website with them. Runs once a week and by hand: Actions -> "FM-1 previews" -> Run workflow.
+# and publishes the website with them. Every night it checks every emulator and records again only the ones whose
+# graphics or code changed (and new mods); by hand: Actions -> "FM-1 previews" -> Run workflow (repos to force).
 name: FM-1 previews
 
 on:
   schedule:
-    - cron: "41 4 * * 1"
+    - cron: "41 2 * * *"
   workflow_dispatch:
     inputs:
       only:
@@ -30,7 +31,7 @@ jobs:
           pip install -q playwright pillow
           python3 -m playwright install --with-deps chromium
       - name: Record
-        run: python3 tools/record_previews.py ${{ github.event.inputs.only }}
+        run: python3 tools/record_previews.py --changed ${{ github.event.inputs.only }}
       - uses: actions/upload-artifact@v4
         with:
           name: previews

@@ -6,7 +6,7 @@ headless Chrome, switches it on, plays a few keys and grabs the 240 x 240 screen
 img/anim/REPO.webp (an animated WebP that loops); img/anim/list.json names the ones that worked. The page swaps
 the still screenshot for the loop when it finds it in that list.
 """
-import base64, io, json, re, sys
+import base64, hashlib, io, json, re, sys, urllib.request
 from pathlib import Path
 from PIL import Image
 from playwright.sync_api import sync_playwright
@@ -19,15 +19,41 @@ html = (ROOT / "index.html").read_text(encoding="utf-8")
 fm1 = html[html.index('<section id="fm1"'):]
 fm1 = fm1[:fm1.index("</section>")]
 emus = sorted(set(re.findall(r'https://swtdr34mz-afk\.github\.io/([A-Za-z0-9_.-]+)/emu/', fm1)))
-only = set(sys.argv[1:])
-if only:
-    emus = [e for e in emus if e in only]
+# which emulators changed since their last recording: a fingerprint of the emulator's page and its files
+def fingerprint(repo):
+    base = f"https://swtdr34mz-afk.github.io/{repo}/emu/"
+    try:
+        page = urllib.request.urlopen(base, timeout=30).read()
+    except Exception as e:
+        print(repo, "fingerprint failed:", e)
+        return None
+    h = hashlib.sha256(page)
+    for ref in sorted(set(re.findall(rb'(?:src|href)="([^"#?]+\.(?:js|wasm|data|bin))"', page)) | {b"app.wasm"}):
+        try:
+            h.update(urllib.request.urlopen(base + ref.decode(), timeout=60).read())
+        except Exception:
+            pass
+    return h.hexdigest()
 
+FP = OUT / "fingerprints.json"
+old_fp = json.loads(FP.read_text()) if FP.exists() else {}
+new_fp = {r: fingerprint(r) for r in emus}
+force = set(a for a in sys.argv[1:] if a != "--changed")
+if "--changed" in sys.argv:
+    emus = [e for e in emus if e in force or not (OUT / f"{e}.webp").exists()
+            or (new_fp.get(e) and new_fp[e] != old_fp.get(e))]
+elif force:
+    emus = [e for e in emus if e in force]
+print("recording:", emus)
+
+# the screen as the page draws it, at up to 480 x 480 (high-resolution graphics stay sharp)
 GRAB = """() => {
   const s = document.getElementById('screen') || document.querySelector('canvas');
-  const c = document.createElement('canvas'); c.width = c.height = 240;
-  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
-  g.drawImage(s, 0, 0, 240, 240);
+  const n = Math.max(240, Math.min(480, s.width, s.height));
+  const c = document.createElement('canvas'); c.width = c.height = n;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = n > 240;
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(s, 0, 0, n, n);
   return c.toDataURL('image/png');
 }"""
 KEY = """([code, down]) => {
@@ -89,4 +115,8 @@ if lst.exists():
 old.update(done)
 old = {k: v for k, v in old.items() if (ROOT / v).exists()}
 lst.write_text(json.dumps(old, indent=1, sort_keys=True) + "\n")
+for r in done:
+    if new_fp.get(r):
+        old_fp[r] = new_fp[r]
+FP.write_text(json.dumps(old_fp, indent=1, sort_keys=True) + "\n")
 print("list:", sorted(old))
