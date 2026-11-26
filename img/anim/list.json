@@ -1,1 +1,11 @@
-{}
+{
+ "CHORD_RUN": "img/anim/CHORD_RUN.webp",
+ "COLLAPSE": "img/anim/COLLAPSE.webp",
+ "GRAIN_PIANO": "img/anim/GRAIN_PIANO.webp",
+ "INSERT_COIN": "img/anim/INSERT_COIN.webp",
+ "OFFWORLD": "img/anim/OFFWORLD.webp",
+ "PROBLEM-6": "img/anim/PROBLEM-6.webp",
+ "RAND": "img/anim/RAND.webp",
+ "SIX_MACHINES": "img/anim/SIX_MACHINES.webp",
+ "STRANGER_SYNTH": "img/anim/STRANGER_SYNTH.webp"
+}
