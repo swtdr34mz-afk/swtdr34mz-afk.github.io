@@ -8,6 +8,7 @@ The homepage for the synth plugins and FM-1 mods by **swtdr34mz**.
 - `.github/workflows/pages.yml` — builds and publishes the site on every change and once an hour, so new releases show up by themselves
 
 A new project needs a new card in `index.html` with `data-repo="REPO-NAME"`; its version is then filled in automatically.
+A renamed repo: change `data-repo` to the new name and add `data-was="OLD-NAME"`, so the next run does not announce it as a new instrument.
 FM-1 mods also get an **⚡ Install** button that links to their card on The Firmware Hub:
 `https://thefirmwarehub.com/#fw-ID`, where ID is the mod's id in https://thefirmwarehub.com/catalog.json (e.g. `offworld`).
 

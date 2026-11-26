@@ -32,9 +32,12 @@ def cards():
         area, body = sec.group(1), sec.group(2)
         if area not in AREA:
             continue
-        for art in re.finditer(r'<article class="card" data-repo="([^"]+)"[^>]*>(.*?)</article>', body, re.S):
-            repo, a = art.group(1), art.group(2)
+        for art in re.finditer(r'<article class="card" data-repo="([^"]+)"([^>]*)>(.*?)</article>', body, re.S):
+            repo, attrs, a = art.group(1), art.group(2), art.group(3)
             c = out.setdefault(repo, {"areas": []})
+            m = re.search(r'data-was="([^"]+)"', attrs)   # a renamed repo: its old name, so it is not announced as new
+            if m:
+                c["was"] = m.group(1)
             c["areas"].append(area)
             m = re.search(r"<h3>(.*?)<span", a, re.S)
             c["name"] = text(m.group(1)) if m else repo
@@ -81,6 +84,9 @@ def main():
         return
     old = old or {}
     info = cards()
+    for repo, c0 in info.items():           # a renamed repo: what the page showed under its old name
+        if repo not in old and c0.get("was") in old:
+            old[repo] = old[c0["was"]]
     for repo, rel in sorted(new.items()):
         was = old.get(repo, {}).get("tag")
         if rel["tag"] == was and repo not in force:
