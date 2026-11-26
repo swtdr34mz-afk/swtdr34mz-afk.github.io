@@ -986,6 +986,101 @@
   });
   addEventListener('scroll', () => { scrollE = Math.min(1, scrollE + Math.abs(scrollY - lastY) / 300); lastY = scrollY; }, {passive: true});
 
+
+  /* ---------- extra scope figures: drawn as one continuous line, like a real XY oscilloscope ---------- */
+  const SH = (() => {
+    const TAU = Math.PI * 2;
+    const circ = (cx, cy, r, n = 28, a0 = Math.PI / 2, ry = r) => Array.from({length: n + 1}, (_, i) => [cx + Math.cos(a0 + TAU * i / n) * r, cy + Math.sin(a0 + TAU * i / n) * ry]);
+    const poly = pts => {
+      const cum = [0];
+      for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      const L = cum[cum.length - 1] || 1;
+      return u => {
+        const d = u * L;
+        let i = 1;
+        while (i < cum.length - 1 && cum[i] < d) i++;
+        const f = (d - cum[i - 1]) / ((cum[i] - cum[i - 1]) || 1);
+        return [pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f];
+      };
+    };
+    const rot = (p, a, ox = 0, oy = 0) => { const c = Math.cos(a), s = Math.sin(a), x = p[0] - ox, y = p[1] - oy; return [ox + x * c - y * s, oy + x * s + y * c]; };
+
+    // Christmas tree with a star on top
+    const tree = poly([[0, .78], [-.32, .38], [-.14, .38], [-.52, -.06], [-.28, -.06], [-.72, -.52], [-.12, -.52], [-.12, -.84], [.12, -.84], [.12, -.52], [.72, -.52], [.28, -.06], [.52, -.06], [.14, .38], [.32, .38], [0, .78],
+      [0, .8], [-.07, .87], [0, .95], [.07, .87], [0, .8]]);
+    // five-pointed star
+    const starPts = Array.from({length: 11}, (_, i) => { const r = i % 2 ? .36 : .9, a = Math.PI / 2 + i * Math.PI / 5; return [Math.cos(a) * r, Math.sin(a) * r]; });
+    const star = poly(starPts);
+    // snowflake: six arms with little branches
+    const flake = [];
+    for (let k = 0; k < 6; k++) {
+      const a = k * TAU / 6, R = p => rot(p, a);
+      for (const p of [[0, 0], [0, .45], [-.17, .6], [0, .45], [.17, .6], [0, .45], [0, .7], [-.12, .82], [0, .7], [.12, .82], [0, .7], [0, .92], [0, 0]]) flake.push(R(p));
+    }
+    const snow = poly(flake);
+    // candy cane: a tube with diagonal stripes
+    const caneC = [[.2, -.9], [.2, .42]];
+    for (let i = 1; i <= 30; i++) { const a = Math.PI * i / 30; caneC.push([-.08 + Math.cos(a) * .28, .42 + Math.sin(a) * .28]); }
+    caneC.push([-.36, .26]);
+    const caneN = caneC.map((p, i) => { const q = caneC[Math.min(i + 1, caneC.length - 1)], o = caneC[Math.max(i - 1, 0)], dx = q[0] - o[0], dy = q[1] - o[1], l = Math.hypot(dx, dy) || 1; return [-dy / l, dx / l]; });
+    const W = .085, out = caneC.map((p, i) => [p[0] + caneN[i][0] * W, p[1] + caneN[i][1] * W]), inn = caneC.map((p, i) => [p[0] - caneN[i][0] * W, p[1] - caneN[i][1] * W]);
+    const stripes = [];
+    const cc = poly(caneC);
+    for (let k = 0; k <= 22; k++) {
+      const u0 = k / 22, u1 = Math.min(1, u0 + .035), p = cc(u0), q = cc(u1), dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
+      stripes.push(k % 2 ? [p[0] + nx * W, p[1] + ny * W] : [p[0] - nx * W, p[1] - ny * W], k % 2 ? [q[0] - nx * W, q[1] - ny * W] : [q[0] + nx * W, q[1] + ny * W]);
+    }
+    const caneStripe = poly([...out, ...inn.reverse(), out[0], ...stripes]);
+    // bell with clapper
+    const bell = poly([[0, .78], ...circ(0, .84, .08, 14, -Math.PI / 2), [0, .76], [-.22, .66], [-.32, .3], [-.36, -.1], [-.5, -.32], [.5, -.32], [.36, -.1], [.32, .3], [.22, .66], [0, .76], [0, -.32], ...circ(0, -.44, .1, 14, Math.PI / 2), [0, -.32]]);
+    // gift box with a bow
+    const gift = poly([[-.6, -.8], [.6, -.8], [.6, .2], [-.6, .2], [-.6, -.8], [-.08, -.8], [-.08, .2], [.08, .2], [.08, -.8], [.6, -.8], [.6, .2], [.68, .2], [.68, .42], [-.68, .42], [-.68, .2], [.68, .2], [.68, .42], [0, .42],
+      [-.38, .78], [-.48, .62], [0, .42], [.38, .78], [.48, .62], [0, .42]]);
+    // snowman with a top hat
+    const snowman = poly([...circ(0, -.5, .4, 36, Math.PI / 2), ...circ(0, .08, .28, 30, -Math.PI / 2).reverse(), [0, .36], ...circ(0, .52, .18, 22, -Math.PI / 2), [-.22, .66], [.22, .66], [.13, .66], [.13, .92], [-.13, .92], [-.13, .66], [-.22, .66]]);
+    // space invader (two frames: the legs move)
+    const inv = (f) => poly([[-.2, .7], [-.3, .82], [-.2, .7], [-.4, .5], [-.55, .5], [-.55, .2], [-.7, .2], [-.7, -.1], [-.55, -.1], [-.55, -.25],
+      ...(f ? [[-.7, -.45], [-.55, -.45], [-.4, -.25]] : [[-.4, -.5], [-.25, -.5], [-.25, -.25]]),
+      [.25, -.25], ...(f ? [[.4, -.25], [.55, -.45], [.7, -.45]] : [[.25, -.5], [.4, -.5], [.4, -.25]]), [.55, -.25], [.55, -.1], [.7, -.1], [.7, .2], [.55, .2], [.55, .5], [.4, .5], [.2, .7], [.3, .82], [.2, .7], [-.2, .7],
+      [-.2, .3], [-.32, .3], [-.32, .15], [-.2, .15], [-.2, .3], [.2, .3], [.2, .15], [.32, .15], [.32, .3], [.2, .3], [.2, .7]]);
+    const invA = inv(0), invB = inv(1);
+    // cassette tape: the reels turn
+    const tapeFrame = [[-.85, -.55], [.85, -.55], [.85, .55], [-.85, .55], [-.85, -.55], [-.55, -.55], [-.45, -.3], [.45, -.3], [.55, -.55], [-.85, -.55], [-.85, .55], [-.6, .4], [.6, .4], [.6, -.15], [-.6, -.15], [-.6, .4]];
+    // dachshund, side view: a long body on short legs that trot, a floppy ear, a wagging tail
+    const dachs = (f, wag) => {
+      const lg = (x, s) => { const dx = (f ? 1 : -1) * s * .05; return [[x, -.14], [x + dx, -.33], [x + dx - .07, -.33], [x - .07, -.14]]; };
+      const tail = [[-.62, .1], [-.62 + Math.cos(2.3 + wag) * .26, .1 + Math.sin(2.3 + wag) * .26], [-.6, .05]];
+      return poly([[-.62, .05], ...tail.slice(1).reverse().slice(1), ...tail, [-.62, .12], [.34, .12], [.42, .3], [.55, .38], [.7, .31], [.92, .2], [.93, .13], [.86, .11],
+        [.62, .1], [.46, -.02], [.42, -.13], ...lg(.38, 1), ...lg(.24, -1), [-.36, -.14], ...lg(-.36, 1), ...lg(-.5, -1), [-.62, -.02], [-.62, .05], [-.62, .12],
+        [.34, .12], [.42, .3], [.5, .35], [.44, .14], [.52, .1], [.58, .3], [.62, .28], ...circ(.67, .27, .025, 8, 0), [.62, .28]]);
+    };
+    const xmas = [
+      (u, t) => { const p = tree(u); return [p[0] + Math.sin(t * 1.5 + p[1] * 3) * .015 * (1 - p[1]), p[1]]; },
+      (u, t) => { const p = star(u), k = 1 + .06 * Math.sin(t * 4); return rot([p[0] * k, p[1] * k], Math.sin(t * .7) * .3); },
+      (u, t) => rot(snow(u), t * .35),
+      (u, t) => { const p = caneStripe(u); return rot([p[0] * 1.15, p[1] * 1.05], Math.sin(t * .9) * .12); },
+      (u, t) => rot(bell(u), Math.sin(t * 2.4) * .28, 0, .84),
+      (u, t) => { const p = gift(u); return [p[0], p[1] + Math.abs(Math.sin(t * 3)) * .05 - .02]; },
+      (u, t) => { const p = snowman(u); return [p[0] * (1 + .03 * Math.sin(t * 2)), p[1]]; },
+    ];
+    const fun = [
+      (u, t) => { const p = (Math.floor(t * 2) % 2 ? invA : invB)(u); return [p[0] + Math.sin(t * .8) * .08, p[1]]; },
+      (u, t) => {
+        // the frame first, then the two reels with their spokes, turning
+        if (u < .5) return poly(tapeFrame)(u * 2);
+        const v = (u - .5) * 2, side = v < .5 ? -1 : 1, w = (v % .5) * 2;
+        const a = w * TAU, r = w < .75 ? .14 : .14 * (1 - (w - .75) * 4 * .9);
+        const spoke = Math.floor(w * 6) % 2 ? .05 : .14;
+        return [side * .32 + Math.cos(a + t * 3 * side) * (w < .75 ? .14 : spoke), .12 + Math.sin(a + t * 3 * side) * (w < .75 ? .14 : spoke)];
+      },
+      (u, t) => { const p = dachs(Math.floor(t * 4) % 2, Math.sin(t * 11) * .55)(u); return [p[0] * 1.05 + Math.sin(t * .5) * .05, p[1] * 1.15 + Math.abs(Math.sin(t * 8)) * .02]; },
+    ];
+    // Christmas figures from the 20th of November to the 6th of January
+    const d = new Date(), md = (d.getMonth() + 1) * 100 + d.getDate();
+    const season = md >= 1120 || md <= 106;
+    return {xmas: season ? xmas : [], fun};
+  })();
+  const FORCE = (() => { const m = location.search.match(/[?&]shape=(\d+)/); return m ? +m[1] : -1; })();
   const frame = now => {
     const t = Math.max(0, (now - t0) / 1000);
     // a beat every half second, like a kick drum
@@ -1014,7 +1109,11 @@
       u => { const a = TAU * u, r = Math.cos(3 * a + t * .4) * .9; return [Math.cos(a) * r, Math.sin(a) * r]; }, // three-petal rose
       u => [Math.sin(TAU * u + t * .8) * .8, Math.sin(2 * TAU * u) * .9],     // figure eight
     ];
-    const HOLD = 3.2, MORPH = 1.4, CYC = HOLD + MORPH;
+    // the extra figures, spread between the classic ones (the logo's cloud keeps coming back)
+    const extra = [...SH.xmas, ...SH.fun].map(f => u => f(u, t));
+    for (let i = 0; i < extra.length; i++) shapes.splice(Math.min(shapes.length, 2 + i * 2), 0, extra[i]);
+    if (FORCE >= 0) { shapes.length = 0; shapes.push(extra[FORCE % extra.length]); }
+    const HOLD = 3.4, MORPH = 1.4, CYC = HOLD + MORPH;
     const idx = Math.floor(t / CYC) % shapes.length, ph = t % CYC;
     let m = ph < HOLD ? 0 : (ph - HOLD) / MORPH;
     m = m * m * (3 - 2 * m);
