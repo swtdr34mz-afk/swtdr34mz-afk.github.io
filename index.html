@@ -308,6 +308,18 @@
   /* nothing may push the page sideways on phones */
   html{overflow-x:hidden;overscroll-behavior-x:none}
   body{overflow-x:clip;position:relative;max-width:100%}
+
+  /* ---------- 90s MODE switch ---------- */
+  nav ul{align-items:center}
+  .m90{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;background:#000;border:1px solid #2b5c60;color:var(--muted);
+       font:600 10px var(--mono);letter-spacing:.16em;cursor:pointer;transition:all .25s}
+  .m90 i{width:7px;height:7px;border-radius:50%;background:#1c2b2c;transition:all .25s}
+  .m90:hover{color:var(--cyan);border-color:var(--cyan)}
+  .m90.on{color:#000;border-color:transparent;background:linear-gradient(90deg,#ff2bd6,#ffd36b,#00f6ff,#ff2bd6) 0 0/300% 100%;
+          box-shadow:0 0 14px #ff2bd699,0 0 26px #00f6ff66;animation:m90 4s linear infinite;font-weight:800}
+  .m90.on i{background:#fff;box-shadow:0 0 8px #fff}
+  @keyframes m90{to{background-position:300% 0}}
+  @media (max-width:799px){.m90li{display:none}}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -353,6 +365,7 @@
     <li><a href="#install">Install</a></li>
     <li><a href="#community">Discord</a></li>
     <li><a href="https://github.com/swtdr34mz-afk" target="_blank" rel="noopener">GitHub</a></li>
+    <li class="m90li"><button class="m90" id="m90" type="button" aria-pressed="false" title="Pop-ups, ICQ and ads like it's 1999"><i></i>90s MODE</button></li>
   </ul>
 </nav>
 
@@ -1056,6 +1069,23 @@
   setTimeout(() => cta.classList.add('show'), 7000);
 
 
+  /* ---------- 90s MODE switch: popups only when it is on ---------- */
+  const M90 = (() => {
+    const onFns = [], offFns = [];
+    const btn = document.getElementById('m90');
+    let state = false;
+    try { state = localStorage.getItem('m90') === '1'; } catch (e) {}
+    const paint = () => { btn.classList.toggle('on', state); btn.setAttribute('aria-pressed', String(state)); };
+    paint();
+    btn.addEventListener('click', () => {
+      state = !state; paint();
+      try { localStorage.setItem('m90', state ? '1' : '0'); } catch (e) {}
+      (state ? onFns : offFns).forEach(f => f(true));
+    });
+    // listeners registered later still learn the state at page load
+    queueMicrotask(() => { if (state) onFns.forEach(f => f(false)); });
+    return {on: f => onFns.push(f), off: f => offFns.push(f)};
+  })();
   /* ---------- 2001 messenger popup: once per visit ---------- */
   {
     const im = document.getElementById('im');
@@ -1103,7 +1133,8 @@
     let imLast = 0;
     try { imLast = +localStorage.getItem('im-t') || 0; } catch (e) {}
     const imDue = Date.now() - imLast > 60 * 60 * 1000;
-    if (desktop && imDue) setTimeout(() => {
+    let imTimer;
+    const imShow = () => {
       try { localStorage.setItem('im-t', String(Date.now())); } catch (e) {}
       try { sessionStorage.setItem('im', '1'); } catch (e) {}
       document.getElementById('im-name').textContent = name;
@@ -1122,7 +1153,9 @@
         const tick = () => { p.textContent = text.slice(0, ++i); if (i < text.length) setTimeout(tick, 28); };
         tick();
       }, 1800);
-    }, 25000);
+    };
+    M90.on(now => { clearTimeout(imTimer); if (desktop && (now || imDue)) imTimer = setTimeout(imShow, now ? 4000 : 25000); });
+    M90.off(() => { clearTimeout(imTimer); if (!im.hidden) close(); });
   }
 
   /* ---------- fake 90s ads: computers only, all six, new order every visit ---------- */
@@ -1132,7 +1165,7 @@
     let adLast = 0, queue = [];
     try { adLast = +localStorage.getItem('ad-t') || 0; queue = JSON.parse(localStorage.getItem('ad-q') || '[]'); } catch (e) {}
     const adDue = Date.now() - adLast > 20 * 60 * 1000;   // a pause of 20 minutes between ad visits
-    if (desktop && pops.length && adDue) {
+    if (desktop && pops.length) {
       // a shuffled round of all six ads, carried on over visits; a new shuffle when the round is through
       if (!Array.isArray(queue) || !queue.length) {
         queue = pops.map((p, i) => i);
@@ -1149,7 +1182,8 @@
         p.querySelector('.bar button').addEventListener('click', () => hide(p));
         p.querySelectorAll('a.b98').forEach(a => a.addEventListener('click', () => hide(p)));
       });
-      next(60000);
+      M90.on(now => { n = 0; if (now || adDue) next(now ? 15000 : 60000); });
+      M90.off(() => { clearTimeout(timer); n = MAX; pops.forEach(p => { if (!p.hidden) { p.classList.remove('show'); setTimeout(() => { p.hidden = true; }, 500); } }); });
     }
   }
   /* ---------- scroll progress ---------- */
