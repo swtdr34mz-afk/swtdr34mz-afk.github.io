@@ -1083,7 +1083,12 @@
     document.getElementById('im-later').addEventListener('click', close);
     // computers only: a mouse and a wide screen, no phones or tablets
     const desktop = innerWidth >= 800 && matchMedia('(any-pointer: fine)').matches;
-    if (desktop) setTimeout(() => {
+    // at most once an hour per browser
+    let imLast = 0;
+    try { imLast = +localStorage.getItem('im-t') || 0; } catch (e) {}
+    const imDue = Date.now() - imLast > 60 * 60 * 1000;
+    if (desktop && imDue) setTimeout(() => {
+      try { localStorage.setItem('im-t', String(Date.now())); } catch (e) {}
       try { sessionStorage.setItem('im', '1'); } catch (e) {}
       document.getElementById('im-name').textContent = name;
       document.getElementById('im-title').textContent = name + ' \u2013 Message Session';
@@ -1101,24 +1106,34 @@
         const tick = () => { p.textContent = text.slice(0, ++i); if (i < text.length) setTimeout(tick, 28); };
         tick();
       }, 1800);
-    }, 14000);
+    }, 25000);
   }
 
   /* ---------- fake 90s ads: computers only, all six, new order every visit ---------- */
   {
     const pops = [...document.querySelectorAll('.adpop')];
     const desktop = innerWidth >= 800 && matchMedia('(any-pointer: fine)').matches;
-    if (desktop && pops.length) {
-      for (let i = pops.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pops[i], pops[j]] = [pops[j], pops[i]]; }
+    let adLast = 0, queue = [];
+    try { adLast = +localStorage.getItem('ad-t') || 0; queue = JSON.parse(localStorage.getItem('ad-q') || '[]'); } catch (e) {}
+    const adDue = Date.now() - adLast > 20 * 60 * 1000;   // a pause of 20 minutes between ad visits
+    if (desktop && pops.length && adDue) {
+      // a shuffled round of all six ads, carried on over visits; a new shuffle when the round is through
+      if (!Array.isArray(queue) || !queue.length) {
+        queue = pops.map((p, i) => i);
+        for (let i = queue.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [queue[i], queue[j]] = [queue[j], queue[i]]; }
+      }
+      const byIdx = i => pops.find(p => +p.dataset.ad === i);
       let n = 0, timer;
-      const next = delay => { clearTimeout(timer); if (n < pops.length) timer = setTimeout(() => show(pops[n++]), delay); };
-      const hide = p => { p.classList.remove('show'); setTimeout(() => { p.hidden = true; }, 500); next(35000); };
+      const MAX = 2;                                        // two ads per visit at most
+      const save = () => { try { localStorage.setItem('ad-q', JSON.stringify(queue)); localStorage.setItem('ad-t', String(Date.now())); } catch (e) {} };
+      const next = delay => { clearTimeout(timer); if (n < MAX && queue.length) timer = setTimeout(() => { const p = byIdx(queue.shift()); n++; save(); if (p) show(p); }, delay); };
+      const hide = p => { p.classList.remove('show'); setTimeout(() => { p.hidden = true; }, 500); next(120000); };
       const show = p => { p.hidden = false; requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('show'))); };
       pops.forEach(p => {
         p.querySelector('.bar button').addEventListener('click', () => hide(p));
         p.querySelectorAll('a.b98').forEach(a => a.addEventListener('click', () => hide(p)));
       });
-      next(30000);
+      next(60000);
     }
   }
   /* ---------- scroll progress ---------- */
