@@ -1,0 +1,49 @@
+# Records the moving screens of the FM-1 mods from their browser emulators (img/anim/*.webp)
+# and publishes the website with them. Runs once a week and by hand: Actions -> "FM-1 previews" -> Run workflow.
+name: FM-1 previews
+
+on:
+  schedule:
+    - cron: "41 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "Only these repos (space separated, empty = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: previews
+  cancel-in-progress: false
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tools
+        run: |
+          pip install -q playwright pillow
+          python3 -m playwright install --with-deps chromium
+      - name: Record
+        run: python3 tools/record_previews.py ${{ github.event.inputs.only }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: previews
+          path: img/anim
+      - name: Commit and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "swtdr34mz"
+          git config user.email "swtdr34mz-afk@users.noreply.github.com"
+          git add img/anim
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -m "FM-1 previews: new screen recordings"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          gh workflow run pages.yml --ref main

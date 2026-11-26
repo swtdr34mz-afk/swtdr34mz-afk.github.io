@@ -1186,6 +1186,25 @@
       M90.off(() => { clearTimeout(timer); n = MAX; pops.forEach(p => { if (!p.hidden) { p.classList.remove('show'); setTimeout(() => { p.hidden = true; }, 500); } }); });
     }
   }
+
+  /* ---------- FM-1 cards: the still screenshot becomes a moving loop from the emulator ---------- */
+  fetch('img/anim/list.json', {cache: 'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(list => {
+      if (!list) return;
+      const io = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting) return;
+        const img = e.target; io.unobserve(img);
+        const pre = new Image();
+        pre.onload = () => { img.src = pre.src; img.classList.add('live'); };
+        pre.src = img.dataset.anim;
+      }), {rootMargin: '200px'});
+      document.querySelectorAll('#fm1 article.card').forEach(card => {
+        const src = list[card.dataset.repo], img = card.querySelector('.shot img');
+        if (src && img) { img.dataset.anim = src; io.observe(img); }
+      });
+    })
+    .catch(() => {});
   /* ---------- scroll progress ---------- */
   const prog = document.getElementById('prog');
   addEventListener('scroll', () => {
