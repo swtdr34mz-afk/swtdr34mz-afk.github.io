@@ -320,6 +320,7 @@
   .m90.on i{background:#fff;box-shadow:0 0 8px #fff}
   @keyframes m90{to{background-position:300% 0}}
   @media (max-width:799px){.m90li{display:none}}
+  .shot video.film{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -1203,6 +1204,37 @@
         const src = list[card.dataset.repo], img = card.querySelector('.shot img');
         if (src && img) { img.dataset.anim = src; io.observe(img); }
       });
+    })
+    .catch(() => {});
+
+  /* ---------- VST and MPC cards: the picture becomes a filmed loop (close-ups / the MPC's pages) ---------- */
+  fetch('img/vid/list.json', {cache: 'no-store'})
+    .then(r => r.ok ? r.json() : null)
+    .then(list => {
+      if (!list) return;
+      const vids = [];
+      const playIO = new IntersectionObserver(es => es.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting) { const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
+      }), {threshold: .25});
+      const loadIO = new IntersectionObserver(es => es.forEach(e => {
+        if (!e.isIntersecting) return;
+        const img = e.target; loadIO.unobserve(img);
+        const v = document.createElement('video');
+        v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true;
+        v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+        v.preload = 'auto'; v.poster = img.getAttribute('src'); v.className = 'film';
+        v.setAttribute('aria-label', img.alt || '');
+        v.src = img.dataset.film;
+        v.addEventListener('loadeddata', () => { img.replaceWith(v); playIO.observe(v); }, {once: true});
+        v.load();
+      }), {rootMargin: '300px'});
+      for (const [sec, key] of [['vst', 'vst'], ['mpc', 'mpc']]) {
+        document.querySelectorAll('#' + sec + ' article.card').forEach(card => {
+          const src = (list[key] || {})[card.dataset.repo], img = card.querySelector('.shot img');
+          if (src && img) { img.dataset.film = src; loadIO.observe(img); }
+        });
+      }
     })
     .catch(() => {});
   /* ---------- scroll progress ---------- */

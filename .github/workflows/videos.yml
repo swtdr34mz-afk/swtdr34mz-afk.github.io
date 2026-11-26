@@ -1,0 +1,126 @@
+# Films the plugins for the website: close-ups of every VST panel (drawn at 3x by the plugin's own picture tool,
+# or the card's picture when a repo has none) and a tour through every MPC plugin's pages (drawn from its skin).
+# The MP4s go to img/vid/, img/vid/list.json names them; then the site is published.
+# Runs once a week and by hand: Actions -> "Plugin videos" -> Run workflow.
+name: Plugin videos
+
+on:
+  schedule:
+    - cron: "23 3 * * 2"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: videos
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      vst: ${{ steps.p.outputs.vst }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: p
+        run: echo "vst=$(python3 tools/video_plan.py vst)" >> "$GITHUB_OUTPUT"
+
+  shot:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        card: ${{ fromJSON(needs.plan.outputs.vst) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: site
+      - uses: actions/checkout@v4
+        with:
+          repository: swtdr34mz-afk/${{ matrix.card.repo }}
+          path: src
+      - name: JUCE's Linux parts
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ninja-build xvfb libasound2-dev libfreetype-dev libfontconfig1-dev libx11-dev \
+            libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
+            libglu1-mesa-dev mesa-common-dev libcurl4-openssl-dev >/dev/null
+      - name: The panel at 3x
+        id: shot
+        continue-on-error: true
+        run: site/tools/panel_shot.sh src "shot-${{ matrix.card.repo }}.png"
+      - uses: actions/upload-artifact@v4
+        if: steps.shot.outcome == 'success'
+        with:
+          name: shot-${{ matrix.card.repo }}
+          path: shot-${{ matrix.card.repo }}.png
+
+  videos:
+    needs: [plan, shot]
+    if: always() && needs.plan.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: shot-*
+          path: shots
+          merge-multiple: true
+      - name: Tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg fonts-dejavu-core >/dev/null
+          pip install -q pillow numpy
+      - name: Films
+        run: |
+          mkdir -p img/vid
+          python3 - <<'PY'
+          import json, subprocess, pathlib, os, shutil
+          plan = json.loads(subprocess.check_output(["python3", "tools/video_plan.py", "all"]))
+          lst = {"vst": {}, "mpc": {}}
+          for c in plan["vst"]:
+              r = c["repo"]; shot = pathlib.Path(f"shots/shot-{r}.png")
+              src = str(shot) if shot.exists() else c["img"]
+              out = f"img/vid/{r}-vst.mp4"
+              print(r, "VST from", src, flush=True)
+              if subprocess.run(["python3", "tools/make_video.py", "vst", src, out]).returncode == 0:
+                  lst["vst"][r] = out
+          for c in plan["mpc"]:
+              r = c["repo"]; d = pathlib.Path(f"mpcsrc/{r}")
+              subprocess.run(["git", "clone", "-q", "--depth", "1", "--filter=blob:none", "--sparse",
+                              f"https://github.com/swtdr34mz-afk/{r}", str(d)], check=False)
+              subprocess.run(["git", "-C", str(d), "sparse-checkout", "set", "mpc/plugin/skins"], check=False)
+              skins = d / "mpc/plugin/skins"
+              if not (skins / "TUI.json").exists():
+                  print(r, "no MPC skin"); continue
+              pages = pathlib.Path(f"pages/{r}")
+              if subprocess.run(["python3", "tools/mpc_pages.py", str(skins), str(pages)]).returncode != 0:
+                  continue
+              files = sorted(str(p) for p in pages.glob("*.png"))
+              out = f"img/vid/{r}-mpc.mp4"
+              print(r, "MPC pages", len(files), flush=True)
+              if files and subprocess.run(["python3", "tools/make_video.py", "pages", *files, out]).returncode == 0:
+                  lst["mpc"][r] = out
+          pathlib.Path("img/vid/list.json").write_text(json.dumps(lst, indent=1, sort_keys=True) + "\n")
+          print(json.dumps(lst, indent=1))
+          PY
+          du -sh img/vid; ls -la img/vid
+      - uses: actions/upload-artifact@v4
+        with:
+          name: videos
+          path: img/vid
+      - name: Commit and publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "swtdr34mz"
+          git config user.email "swtdr34mz-afk@users.noreply.github.com"
+          git add img/vid
+          if git diff --cached --quiet; then echo "nothing new"; exit 0; fi
+          git commit -m "Plugin videos: new close-ups and MPC page tours"
+          git pull --rebase origin main
+          git push origin HEAD:main
+          gh workflow run pages.yml --ref main
