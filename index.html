@@ -351,6 +351,9 @@
   #logo.m-word{filter:drop-shadow(1px 1px 0 #2a1d8f) drop-shadow(1px 1px 0 #2a1d8f) drop-shadow(1px 1px 0 #2a1d8f) drop-shadow(2px 2px 0 #160d5a) drop-shadow(4px 5px 3px #000c)!important;
       transform:perspective(600px) rotateX(16deg) skewX(-8deg) scale(calc(1 + var(--k) * .045))!important;animation:wobble 3.6s ease-in-out infinite}
   @keyframes wobble{0%,100%{rotate:-2deg}50%{rotate:2deg}}
+  .stats .free b{white-space:nowrap}
+  .stats .four{font-style:normal;color:var(--cyan);margin-right:.25em;opacity:.08;text-shadow:none;animation:four 5s steps(1) infinite}
+  @keyframes four{0%,61%,67%,69%,100%{opacity:.08;text-shadow:none}62%,66%,70%,78%{opacity:1;text-shadow:0 0 14px var(--cyan),0 0 34px #00f6ffaa}63%{opacity:.3}}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -422,7 +425,7 @@
     <div><b data-count="5" data-of="mpc">5</b><span>MPC plugins</span></div>
     <div><b data-count="9" data-of="fm1">9</b><span>FM-1 mods</span></div>
     <div class="dlbox"><b id="dl-total">&ndash;</b><span>Downloads</span></div>
-    <div><b>FREE</b><span>no strings attached · only patch cables</span></div>
+    <div class="free"><b><i class="four">4</i>FREE</b><span>&nbsp;</span></div>
   </div>
 </section>
 
