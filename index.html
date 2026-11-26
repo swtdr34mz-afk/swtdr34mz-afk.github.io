@@ -352,8 +352,9 @@
       transform:perspective(600px) rotateX(16deg) skewX(-8deg) scale(calc(1 + var(--k) * .045))!important;animation:wobble 3.6s ease-in-out infinite}
   @keyframes wobble{0%,100%{rotate:-2deg}50%{rotate:2deg}}
   .stats .free b{white-space:nowrap}
-  .stats .four{font-style:normal;color:var(--cyan);margin-right:.25em;opacity:.08;text-shadow:none;animation:four 5s steps(1) infinite}
-  @keyframes four{0%,61%,67%,69%,100%{opacity:.08;text-shadow:none}62%,66%,70%,78%{opacity:1;text-shadow:0 0 14px var(--cyan),0 0 34px #00f6ffaa}63%{opacity:.3}}
+  .stats .four{display:inline-block;font-style:normal;color:#c04bff;margin-right:.22em;transform:rotate(-12deg) skewX(-10deg);
+      opacity:.1;text-shadow:none;animation:four 5s steps(1) infinite}
+  @keyframes four{0%,61%,67%,69%,100%{opacity:.1;text-shadow:none}62%,66%,70%,78%{opacity:1;text-shadow:0 0 12px #c04bff,0 0 30px #b026ffaa,0 0 50px #ff2bd655}63%{opacity:.3}}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
