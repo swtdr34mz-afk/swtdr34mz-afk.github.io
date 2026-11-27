@@ -1,0 +1,35 @@
+# The live download counter: every 10 minutes counts the downloads of all
+# projects and puts them on the "stats" branch as downloads.json. The page reads
+# that file directly (no rebuild of the website needed), so the numbers move by
+# themselves. The branch keeps only the newest count (no long history).
+name: Download counter
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: downloads
+  cancel-in-progress: true
+
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Count
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 tools/downloads.py /tmp/downloads.json
+      - name: Publish on the stats branch
+        run: |
+          mkdir /tmp/stats && cd /tmp/stats
+          git init -q -b stats
+          cp /tmp/downloads.json .
+          git add downloads.json
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -q -m "Download count"
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" stats

@@ -179,6 +179,8 @@
   .stats b{display:block;font:800 clamp(28px,5vw,48px)/1 var(--mono);color:#fff;text-shadow:0 0 16px #00f6ff88}
   .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
   .stats .dlbox b{color:var(--cyan)}
+  .stats .dlbox b.bump{animation:bump 1.6s ease-out}
+  @keyframes bump{0%{text-shadow:0 0 18px var(--cyan),0 0 40px var(--cyan)}100%{text-shadow:none}}
   @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(odd){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}.stats div:last-child{grid-column:1/-1}}
 
 
@@ -1549,9 +1551,9 @@
     const n = document.querySelectorAll('#' + b.dataset.of + ' article.card').length;
     if (n) { b.dataset.count = n; b.textContent = n; }
   });
-  function countTo(b, end) {
+  function countTo(b, end, from = 0) {
     const t1 = performance.now();
-    const step = now => { const p = Math.min(1, (now - t1) / 1200); b.textContent = Math.round(end * (1 - Math.pow(1 - p, 3))).toLocaleString('en-US'); if (p < 1) requestAnimationFrame(step); };
+    const step = now => { const p = Math.min(1, (now - t1) / 1200); b.textContent = Math.round(from + (end - from) * (1 - Math.pow(1 - p, 3))).toLocaleString('en-US'); if (p < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
   }
   const countUp = box => box.querySelectorAll('[data-count]').forEach(b => countTo(b, +b.dataset.count));
@@ -1652,8 +1654,46 @@
         const box = tb.closest('.stats');
         if (box && box.classList.contains('in')) countTo(tb, total); else tb.textContent = '0';
       }
+      liveDownloads();
     })
     .catch(() => {});
+  /* the live counter: downloads.json on the "stats" branch, counted every 10 minutes by a
+     GitHub Action; read again every 2 minutes while the page is open. A number that grew
+     counts up and glows briefly. */
+  const LIVE = 'https://raw.githubusercontent.com/swtdr34mz-afk/swtdr34mz-afk.github.io/stats/downloads.json';
+  const label = n => '↓ ' + n.toLocaleString('en-US') + (n === 1 ? ' download' : ' downloads');
+  let liveOn = false;
+  function liveDownloads() {
+    if (liveOn) return; liveOn = true;
+    const poll = () => {
+      if (document.hidden) return;
+      fetch(LIVE + '?t=' + Date.now(), {cache: 'no-store'})
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if (!d || !d.repos) return;
+          for (const card of document.querySelectorAll('article.card[data-repo]')) {
+            const c = d.repos[card.dataset.repo], el = card.querySelector('.dls');
+            if (!c || !el) continue;
+            const n = card.closest('#mpc') ? c.mpc : c.main;
+            if (n > 0) el.textContent = label(n);
+          }
+          const total = Object.values(d.repos).reduce((a, c) => a + c.main + c.mpc, 0);
+          const tb = document.getElementById('dl-total');
+          const old = tb ? +(tb.dataset.count || 0) : 0;
+          if (!tb || total <= old) return;          // never counts backwards
+          tb.dataset.count = total;
+          const box = tb.closest('.stats');
+          if (box && box.classList.contains('in')) {
+            countTo(tb, total, old);
+            tb.classList.remove('bump'); void tb.offsetWidth; tb.classList.add('bump');
+          }
+        })
+        .catch(() => {});
+    };
+    poll();
+    setInterval(poll, 120000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) poll(); });
+  }
 }
 </script>
 </body>
