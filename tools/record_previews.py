@@ -95,7 +95,9 @@ with sync_playwright() as p:
             path = OUT / f"{repo}.webp"
             frames[0].save(path, save_all=True, append_images=frames[1:], duration=STEP_MS, loop=0,
                            quality=72, method=6)
-            done[repo] = f"img/anim/{repo}.webp"
+            # a version in the address, so browsers fetch the new loop instead of an old copy they kept
+            ver = (new_fp.get(repo) or "")[:7] or str(int(path.stat().st_mtime))
+            done[repo] = f"img/anim/{repo}.webp?v={ver}"
             print("  ok", path.stat().st_size // 1024, "KB")
         except Exception as e:
             print("  failed:", e)
@@ -112,7 +114,7 @@ if lst.exists():
     except Exception:
         pass
 old.update(done)
-old = {k: v for k, v in old.items() if (ROOT / v).exists()}
+old = {k: v for k, v in old.items() if (ROOT / v.split("?")[0]).exists()}
 lst.write_text(json.dumps(old, indent=1, sort_keys=True) + "\n")
 for r in done:
     if new_fp.get(r):
