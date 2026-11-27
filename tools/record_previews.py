@@ -19,21 +19,20 @@ html = (ROOT / "index.html").read_text(encoding="utf-8")
 fm1 = html[html.index('<section id="fm1"'):]
 fm1 = fm1[:fm1.index("</section>")]
 emus = sorted(set(re.findall(r'https://swtdr34mz-afk\.github\.io/([A-Za-z0-9_.-]+)/emu/', fm1)))
-# which emulators changed since their last recording: a fingerprint of the emulator's page and its files
+# which emulators changed since their last recording: the newest commit of the mod's repo (every push rebuilds
+# its browser emulator), so any change to the graphics or the code is noticed
+import os
 def fingerprint(repo):
-    base = f"https://swtdr34mz-afk.github.io/{repo}/emu/"
+    req = urllib.request.Request(f"https://api.github.com/repos/swtdr34mz-afk/{repo}/commits/HEAD",
+                                 headers={"Accept": "application/vnd.github.sha"})
+    tok = os.environ.get("GITHUB_TOKEN")
+    if tok:
+        req.add_header("Authorization", f"Bearer {tok}")
     try:
-        page = urllib.request.urlopen(base, timeout=30).read()
+        return urllib.request.urlopen(req, timeout=30).read().decode().strip()
     except Exception as e:
         print(repo, "fingerprint failed:", e)
         return None
-    h = hashlib.sha256(page)
-    for ref in sorted(set(re.findall(rb'(?:src|href)="([^"#?]+\.(?:js|wasm|data|bin))"', page)) | {b"app.wasm"}):
-        try:
-            h.update(urllib.request.urlopen(base + ref.decode(), timeout=60).read())
-        except Exception:
-            pass
-    return h.hexdigest()
 
 FP = OUT / "fingerprints.json"
 old_fp = json.loads(FP.read_text()) if FP.exists() else {}
