@@ -95,6 +95,10 @@ with sync_playwright() as p:
             path = OUT / f"{repo}.webp"
             frames[0].save(path, save_all=True, append_images=frames[1:], duration=STEP_MS, loop=0,
                            quality=72, method=6)
+            # a still from the loop for the card's picture (and the strip of newest releases), so the page
+            # never shows an old screenshot before the loop starts
+            still = OUT / f"{repo}.png"
+            frames[min(len(frames) - 1, 24)].save(still, optimize=True)
             # a version in the address, so browsers fetch the new loop instead of an old copy they kept
             ver = (new_fp.get(repo) or "")[:7] or str(int(path.stat().st_mtime))
             done[repo] = f"img/anim/{repo}.webp?v={ver}"
@@ -116,6 +120,15 @@ if lst.exists():
 old.update(done)
 old = {k: v for k, v in old.items() if (ROOT / v.split("?")[0]).exists()}
 lst.write_text(json.dumps(old, indent=1, sort_keys=True) + "\n")
+# the FM-1 cards' pictures: the newest still, with its version, written into index.html
+page = (ROOT / "index.html").read_text(encoding="utf-8")
+for r, v in old.items():
+    ver = v.split("?v=")[-1] if "?v=" in v else ""
+    if not (OUT / f"{r}.png").exists():
+        continue
+    page = re.sub(r'(data-repo="%s" data-asset="\.fwsc">\s*<div class="shot"><img src=")[^"]+(")' % re.escape(r),
+                  lambda m: m.group(1) + f"img/anim/{r}.png?v={ver}" + m.group(2), page)
+(ROOT / "index.html").write_text(page, encoding="utf-8")
 for r in done:
     if new_fp.get(r):
         old_fp[r] = new_fp[r]
