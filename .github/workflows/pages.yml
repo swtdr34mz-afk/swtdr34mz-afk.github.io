@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -34,7 +35,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: What the site showed until now (for the Discord posts)
-        run: curl -fsSL "https://swtdr34mz-afk.github.io/releases.json?$(date +%s)" -o old-releases.json || rm -f old-releases.json
+        # from the previous run's own record (the releases-diff artifact), not from the live site: the site is behind
+        # a cache for some minutes, and a run right after another would see the old list and post the same release
+        # again. The live site only when there is no such record.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -f old-releases.json
+          id=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=releases-diff&per_page=20" \
+                 --jq "[.artifacts[] | select(.expired | not) | select(.workflow_run.id != ${{ github.run_id }})] | sort_by(.created_at) | last | .id // empty")
+          if [ -n "$id" ] && gh api "repos/${{ github.repository }}/actions/artifacts/$id/zip" > prev.zip 2>/dev/null; then
+            mkdir -p prev && unzip -o -q prev.zip -d prev && cp prev/releases.json old-releases.json && echo "old list: artifact $id"
+          fi
+          [ -s old-releases.json ] || curl -fsSL "https://swtdr34mz-afk.github.io/releases.json?$(date +%s)" -o old-releases.json || rm -f old-releases.json
       - name: Fetch the newest releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
