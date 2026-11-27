@@ -82,6 +82,7 @@ jobs:
           DISCORD_WEBHOOK_VST: ${{ secrets.DISCORD_WEBHOOK_VST }}
           DISCORD_WEBHOOK_MPC: ${{ secrets.DISCORD_WEBHOOK_MPC }}
           DISCORD_WEBHOOK_FM1: ${{ secrets.DISCORD_WEBHOOK_FM1 }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           F=""; if [ -n "${{ github.event.inputs.announce }}" ]; then F="--force ${{ github.event.inputs.announce }}"; fi
           if [ -n "${{ github.event.inputs.areas }}" ]; then F="$F --only ${{ github.event.inputs.areas }}"; fi

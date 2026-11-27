@@ -50,6 +50,47 @@ def cards():
             c.setdefault("by", {})[area] = {"what": c["what"], "img": c["img"]}   # each section's own text and picture
     return out
 
+def intro(what):
+    """one short sentence for new readers: what the instrument is"""
+    m = re.match(r"(.+?[.!?:])(\s|$)", what)
+    one = (m.group(1) if m else what).rstrip(":")
+    return one if len(one) <= 160 else one[:157].rsplit(" ", 1)[0] + "…"
+
+def clean(notes):
+    notes = re.sub(r"🤖 Generated with.*", "", notes or "", flags=re.S)
+    notes = re.sub(r"https://claude\.ai/\S+", "", notes)
+    notes = re.sub(r"^(Co-Authored-By|Claude-Session):.*$", "", notes, flags=re.M | re.I)
+    notes = re.sub(r"^#{1,6}\s*(.+?)\s*$", r"**\1**", notes, flags=re.M)   # Markdown headings: Discord shows them huge
+    return re.sub(r"\n{3,}", "\n\n", notes).strip()
+
+def changes(repo, was, tag):
+    """no release notes written: the commit titles between the two releases"""
+    if not was:
+        return ""
+    req = urllib.request.Request(f"https://api.github.com/repos/{OWNER}/{repo}/compare/{was}...{tag}",
+                                 headers={"User-Agent": "swtdr34mz-site", "Accept": "application/vnd.github+json"})
+    tok = os.environ.get("GITHUB_TOKEN")
+    if tok:
+        req.add_header("Authorization", f"Bearer {tok}")
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = json.load(r)
+    except Exception as e:
+        print(f"  {repo}: no commit list ({e})")
+        return ""
+    out = []
+    for c in data.get("commits", []):
+        msg = c["commit"]["message"].strip().split("\n")
+        if msg[0].startswith("Merge pull request"):
+            title = next((l.strip() for l in msg[1:] if l.strip()), "")
+        elif msg[0].startswith("Merge "):
+            continue
+        else:
+            title = msg[0].strip()
+        if title and title not in out and not re.match(r"(?i)(bump|release|version)\b.*\d", title):
+            out.append(title)
+    return "\n".join(f"• {t}" for t in out[-12:])
+
 def load(path):
     try:
         with open(path, encoding="utf-8") as f:
@@ -111,12 +152,22 @@ def main():
                 continue
             c["what"], c["img"] = c["by"][area]["what"], c["by"][area]["img"]
             lines = list(head)
-            lines.append(c["what"])
-            notes = re.sub(r"🤖 Generated with.*", "", rel.get("notes") or "", flags=re.S).strip()
-            notes = re.sub(r"https://claude\.ai/\S+", "", notes).strip()
-            if notes:
+            if first:
+                lines.append(c["what"])            # a new instrument: the whole description
+                notes = clean(rel.get("notes"))
+                if notes:
+                    lines.append("")
+                    lines.append(notes[:1500])
+            else:
+                lines.insert(0, f"*{intro(c['what'])}*")   # one line for new readers, then what changed
+                notes = clean(rel.get("notes")) or changes(repo, was, rel["tag"])
                 lines.append("")
-                lines.append(notes[:700])
+                if notes:
+                    if not notes.startswith("**"):        # the notes bring no heading of their own
+                        lines.append(f"**What's new in {rel['tag']}**")
+                    lines.append(notes[:2500])
+                else:
+                    lines.append(f"Details on the [release page]({rel['url']}).")
             links = [f"[Download]({rel['url']})"]
             if c.get("play"):
                 links.append(f"[▶ Play in your browser]({c['play']})")
