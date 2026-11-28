@@ -456,7 +456,7 @@
 <section id="vst">
   <div class="sec-head">
     <span class="idx">01</span><h2>VST PLUGINS</h2>
-    <p>VST3 for Windows and Mac, AU for Logic and GarageBand, and a standalone app.</p>
+    <p>VST3 for Windows, Mac and Linux, AU for Logic and GarageBand, LV2 on Linux, and a standalone app.</p>
   </div>
   <div class="grid plugins">
     <article class="card" data-repo="PROBLEM-6-VST" data-was="PROPHET-67-VST">
@@ -1672,6 +1672,21 @@
           const isMpc = !!card.closest('#mpc');
           const n = isMpc ? rel.downloads.mpc : rel.downloads.main;
           if (n > 0) card.querySelector('.dls').textContent = '↓ ' + n.toLocaleString('en-US') + (n === 1 ? ' download' : ' downloads');
+        }
+        // a Linux build in the release: a third download button (and the LINUX tag), on its own
+        const lin = rel.assets && Object.keys(rel.assets).find(n => /linux/i.test(n));
+        if (lin && card.closest('#vst') && !card.querySelector('.btn.lin')) {
+          const mac = [...card.querySelectorAll('.actions .btn.solid')].pop();
+          if (mac) {
+            const a = document.createElement('a');
+            a.className = 'btn solid lin'; a.href = rel.assets[lin]; a.target = '_blank'; a.rel = 'noopener';
+            a.textContent = '↓ Linux';
+            mac.after(a);
+          }
+          const tags = card.querySelector('.tags');
+          if (tags && ![...tags.children].some(t => t.textContent === 'LINUX')) {
+            const t = document.createElement('span'); t.textContent = 'LINUX'; tags.append(t);
+          }
         }
         const ext = card.dataset.asset;
         const dl = card.querySelector('[data-dl]');
