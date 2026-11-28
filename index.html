@@ -1706,6 +1706,21 @@
   document.querySelectorAll('article.card .actions').forEach(acts => {
     const d = document.createElement('div'); d.className = 'dls'; acts.after(d);
   });
+  /* a Linux build in the release: a third download button (and the LINUX tag), on its own */
+  function addLinux(card, url) {
+    if (!card.closest('#vst') || card.querySelector('.btn.lin')) return;
+    const mac = [...card.querySelectorAll('.actions .btn.solid')].pop();
+    if (mac) {
+      const a = document.createElement('a');
+      a.className = 'btn solid lin'; a.href = url; a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = '↓ Linux';
+      mac.after(a);
+    }
+    const tags = card.querySelector('.tags');
+    if (tags && ![...tags.children].some(t => t.textContent === 'LINUX')) {
+      const t = document.createElement('span'); t.textContent = 'LINUX'; tags.append(t);
+    }
+  }
   fetch('releases.json', {cache: 'no-store'})
     .then(r => r.ok ? r.json() : null)
     .then(data => {
@@ -1728,21 +1743,8 @@
           const n = isMpc ? rel.downloads.mpc : rel.downloads.main;
           if (n > 0) card.querySelector('.dls').textContent = '↓ ' + n.toLocaleString('en-US') + (n === 1 ? ' download' : ' downloads');
         }
-        // a Linux build in the release: a third download button (and the LINUX tag), on its own
         const lin = rel.assets && Object.keys(rel.assets).find(n => /linux/i.test(n));
-        if (lin && card.closest('#vst') && !card.querySelector('.btn.lin')) {
-          const mac = [...card.querySelectorAll('.actions .btn.solid')].pop();
-          if (mac) {
-            const a = document.createElement('a');
-            a.className = 'btn solid lin'; a.href = rel.assets[lin]; a.target = '_blank'; a.rel = 'noopener';
-            a.textContent = '↓ Linux';
-            mac.after(a);
-          }
-          const tags = card.querySelector('.tags');
-          if (tags && ![...tags.children].some(t => t.textContent === 'LINUX')) {
-            const t = document.createElement('span'); t.textContent = 'LINUX'; tags.append(t);
-          }
-        }
+        if (lin) addLinux(card, rel.assets[lin]);
         const ext = card.dataset.asset;
         const dl = card.querySelector('[data-dl]');
         if (ext && dl && rel.assets) {
@@ -1792,6 +1794,7 @@
             if (!c || !el) continue;
             const n = card.closest('#mpc') ? c.mpc : c.main;
             if (n > 0) el.textContent = label(n);
+            if (c.linux) addLinux(card, c.linux);
           }
           const total = Object.values(d.repos).reduce((a, c) => a + c.main + c.mpc, 0);
           const tb = document.getElementById('dl-total');

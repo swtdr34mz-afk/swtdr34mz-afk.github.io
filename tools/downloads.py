@@ -35,7 +35,14 @@ for repo in repos:
     except Exception as e:                # one project not reachable: left out (the page keeps its last number)
         print(f"{repo}: {e}")
         continue
-    if dl["mpc"] or dl["main"]:
+    try:                                  # the newest release's Linux file, so the page can show its button early
+        rel = get(f"https://api.github.com/repos/{OWNER}/{repo}/releases/latest")
+        lin = [a["browser_download_url"] for a in rel.get("assets", []) if "linux" in a["name"].lower()]
+        if lin:
+            dl["linux"] = lin[0]
+    except Exception:
+        pass
+    if dl["mpc"] or dl["main"] or "linux" in dl:
         out["repos"][repo] = dl
 with open(OUT, "w", encoding="utf-8") as f:
     json.dump(out, f, separators=(",", ":"))
