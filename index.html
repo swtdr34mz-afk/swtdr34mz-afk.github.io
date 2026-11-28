@@ -180,6 +180,25 @@
   .stats b{display:block;font:800 clamp(28px,5vw,48px)/1 var(--mono);color:#fff;text-shadow:0 0 16px #00f6ff88}
   .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
   .stats .dlbox b{color:var(--cyan)}
+  /* live downloads: LED in the box, "+N today", the feed, the 24-hour curve, HOT on the cards */
+  .stats .lv{display:inline-flex;align-items:center;gap:6px;margin:0 0 6px;font:600 9.5px var(--mono);letter-spacing:.2em;color:#3cff7a}
+  .stats .lv i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3cff7a;box-shadow:0 0 8px #3cff7a;animation:led 1.6s ease-in-out infinite}
+  @keyframes led{50%{opacity:.25;box-shadow:none}}
+  .stats .today{margin-top:5px;font:11px var(--mono);letter-spacing:.08em;color:#3cff7a;text-transform:none;min-height:1.2em}
+  .live{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;margin-top:14px}
+  .live .hd{display:flex;justify-content:space-between;gap:10px;font:10.5px var(--mono);letter-spacing:.16em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px}
+  .live .hd .on{color:#3cff7a}.live .hd b{color:var(--cyan);font-weight:600}
+  .feed,.spk{background:#000;border:1px solid var(--line);padding:12px 14px}
+  #feed{font:12px/1.9 var(--mono);color:#9fe9ec;min-height:5.7em}
+  #feed div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #feed div::before{content:"> ";color:#4d8f93}
+  #feed b{color:var(--cyan);font-weight:600}#feed i{color:#4d8f93;font-style:normal}
+  #feed .new{color:#fff;text-shadow:0 0 8px var(--cyan)}
+  .spk svg{display:block;width:100%;height:84px;filter:drop-shadow(0 0 4px #00f6ff88)}
+  .spk .ax{display:flex;justify-content:space-between;font:10px var(--mono);color:#4d8f93;letter-spacing:.1em;margin-top:4px}
+  .hot{font:700 10px var(--mono);letter-spacing:.14em;padding:3px 7px;background:#ff5a1f;color:#000;box-shadow:0 0 12px #ff5a1f88;margin-right:6px}
+  .dls .pl{color:#3cff7a;margin-left:10px}
+  @media (max-width:700px){.live{grid-template-columns:minmax(0,1fr)}}
   .stats .dlbox b.bump{animation:bump 1.6s ease-out}
   @keyframes bump{0%{text-shadow:0 0 18px var(--cyan),0 0 40px var(--cyan)}100%{text-shadow:none}}
   @media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats div:nth-child(odd){border-left:0}.stats div:nth-child(n+3){border-top:1px solid var(--line)}.stats div:last-child{grid-column:1/-1}}
@@ -449,8 +468,14 @@
     <div><b data-count="8" data-of="vst">8</b><span>VST plugins</span></div>
     <div><b data-count="5" data-of="mpc">5</b><span>MPC plugins</span></div>
     <div><b data-count="9" data-of="fm1">9</b><span>FM-1 mods</span></div>
-    <div class="dlbox"><b id="dl-total">&ndash;</b><span>Downloads</span></div>
+    <div class="dlbox"><span class="lv"><i></i>LIVE</span><b id="dl-total">&ndash;</b><span>Downloads</span><span class="today" id="dl-today"></span></div>
     <div><b>FREE</b><span>For all</span></div>
+  </div>
+  <div class="live" id="live" hidden>
+    <div class="feed"><div class="hd"><span>DOWNLOAD FEED</span><span class="on">&#9679; LIVE</span></div><div id="feed"></div></div>
+    <div class="spk"><div class="hd"><span>DOWNLOADS &middot; 24H</span><b id="spk-n"></b></div>
+      <svg viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true"><path id="spk-a" fill="#00f6ff18"/><path id="spk-l" fill="none" stroke="#00f6ff" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+      <div class="ax"><span>24h ago</span><span>now</span></div></div>
   </div>
 </section>
 
@@ -1780,6 +1805,67 @@
      counts up and glows briefly. */
   const LIVE = 'https://raw.githubusercontent.com/swtdr34mz-afk/swtdr34mz-afk.github.io/stats/downloads.json';
   const label = n => '↓ ' + n.toLocaleString('en-US') + (n === 1 ? ' download' : ' downloads');
+  /* the live displays, from the counter's history (a snapshot whenever a download came in, 26 hours) */
+  function renderLive(d) {
+    const H = d.hist || [];
+    if (!H.length) return;
+    const now = Date.now() / 1000, last = H[H.length - 1];
+    const info = {};
+    document.querySelectorAll('article.card[data-repo]').forEach(c => {
+      const h = c.querySelector('h3');
+      (info[c.dataset.repo] ||= {})[c.closest('section').id] = h ? h.firstChild.textContent.trim() : c.dataset.repo;
+    });
+    const name = (r, k) => { const i = info[r] || {};
+      return k ? (i.mpc || i.vst || r) + ' (MPC)' : i.vst || (i.fm1 ? i.fm1 + ' (FM-1)' : r); };
+    const delta = (a, b, r) => { const x = a.r[r], y = b.r[r]; return x && y ? [y[0] - x[0], y[1] - x[1]] : [0, 0]; };
+    const since = t => { let b = H[0]; for (const h of H) if (h.t <= t) b = h; return b; };
+    const sum = (a, b) => Object.keys(b.r).reduce((n, r) => { const v = delta(a, b, r); return n + v[0] + v[1]; }, 0);
+    // "+N today" (since midnight where the visitor is), in the box and on every card
+    const mid = new Date(); mid.setHours(0, 0, 0, 0);
+    const day = since(mid / 1000);
+    const nt = sum(day, last);
+    document.getElementById('dl-today').textContent = nt > 0 ? '+' + nt.toLocaleString('en-US') + ' today' : '';
+    for (const card of document.querySelectorAll('article.card[data-repo]')) {
+      const el = card.querySelector('.dls'); if (!el) continue;
+      const v = delta(day, last, card.dataset.repo), n = card.closest('#mpc') ? v[1] : v[0];
+      let pl = el.querySelector('.pl');
+      if (n > 0) { if (!pl) { pl = document.createElement('span'); pl.className = 'pl'; el.append(pl); } pl.textContent = '+' + n + ' today'; }
+      else if (pl) pl.remove();
+    }
+    // HOT: the most downloaded in the last 24 hours (at least 3)
+    const d24 = since(now - 86400);
+    let hot = null, best = 2;
+    for (const r of Object.keys(last.r)) { const v = delta(d24, last, r); if (v[0] + v[1] > best) { best = v[0] + v[1]; hot = r; } }
+    document.querySelectorAll('.hot').forEach(e => e.remove());
+    if (hot) document.querySelectorAll('article.card[data-repo="' + hot + '"] .vers').forEach(v => {
+      const s = document.createElement('span'); s.className = 'hot'; s.textContent = 'HOT'; v.prepend(s); });
+    // the feed: the newest downloads, newest first
+    const ev = [];
+    for (let i = H.length - 1; i > 0 && ev.length < 5; i--)
+      for (const r of Object.keys(H[i].r)) {
+        const v = delta(H[i - 1], H[i], r);
+        for (const k of [0, 1]) if (v[k] > 0) ev.push({t: H[i].t, n: v[k], who: name(r, k)});
+      }
+    const ago = t => { const m = Math.round((now - t) / 60);
+      return m < 2 ? 'just now' : m < 60 ? m + ' min ago' : Math.round(m / 60) + ' h ago'; };
+    const esc = t => String(t).replace(/[&<>]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]));
+    document.getElementById('feed').innerHTML = ev.length
+      ? ev.slice(0, 5).map(e => `<div class="${now - e.t < 900 ? 'new' : ''}"><b>${e.n}&times;</b> ${esc(e.who)} <i>&middot; ${ago(e.t)}</i></div>`).join('')
+      : '<div><i>waiting for the next download</i><span class="cur"></span></div>';
+    // the 24-hour curve: all downloads together
+    const t0 = now - 86400, pts = [[0, sum(H[0], d24)]];
+    for (const h of H) if (h.t > t0) pts.push([(h.t - t0) / 86400 * 400, sum(H[0], h)]);
+    pts.push([400, sum(H[0], last)]);
+    const lo = pts[0][1], hi = Math.max(...pts.map(p => p[1]));
+    const y = v => hi > lo ? 54 - (v - lo) / (hi - lo) * 48 : 54;
+    let dd = '', pv = null;
+    for (const [x, v] of pts) { if (pv !== null) dd += ' L' + x.toFixed(1) + ',' + y(pv).toFixed(1); dd += (dd ? ' L' : 'M') + x.toFixed(1) + ',' + y(v).toFixed(1); pv = v; }
+    document.getElementById('spk-l').setAttribute('d', dd);
+    document.getElementById('spk-a').setAttribute('d', dd + ' L400,60 L0,60Z');
+    const n24 = sum(d24, last);
+    document.getElementById('spk-n').textContent = '+' + n24.toLocaleString('en-US');
+    document.getElementById('live').hidden = false;
+  }
   let liveOn = false;
   function liveDownloads() {
     if (liveOn) return; liveOn = true;
@@ -1796,6 +1882,7 @@
             if (n > 0) el.textContent = label(n);
             if (c.linux) addLinux(card, c.linux);
           }
+          renderLive(d);
           const total = Object.values(d.repos).reduce((a, c) => a + c.main + c.mpc, 0);
           const tb = document.getElementById('dl-total');
           const old = tb ? +(tb.dataset.count || 0) : 0;

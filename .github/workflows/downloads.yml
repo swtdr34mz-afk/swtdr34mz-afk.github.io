@@ -21,9 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: The last count (for the history)
+        run: |
+          git fetch -q --depth=1 origin stats && git show origin/stats:downloads.json > /tmp/prev.json || echo '{}' > /tmp/prev.json
       - name: Count
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PREV: /tmp/prev.json
         run: python3 tools/downloads.py /tmp/downloads.json
       - name: Publish on the stats branch
         run: |

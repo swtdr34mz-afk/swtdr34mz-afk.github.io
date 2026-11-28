@@ -44,6 +44,21 @@ for repo in repos:
         pass
     if dl["mpc"] or dl["main"] or "linux" in dl:
         out["repos"][repo] = dl
+# the history for the live displays (feed, "+N today", HOT, the 24-hour curve): a snapshot of every
+# project's count whenever the total changed, kept for 26 hours. PREV is the last downloads.json.
+now = int(datetime.now(timezone.utc).timestamp())
+try:
+    hist = json.load(open(os.environ.get("PREV", ""), encoding="utf-8")).get("hist", [])
+except Exception:
+    hist = []
+hist = [h for h in hist if now - h["t"] < 26 * 3600]
+snap = {r: [d["main"], d["mpc"]] for r, d in out["repos"].items() if d["main"] or d["mpc"]}
+if hist:                                  # a project that could not be read this time keeps its last count
+    for r, v in hist[-1]["r"].items():
+        snap.setdefault(r, v)
+if not hist or snap != hist[-1]["r"]:
+    hist.append({"t": now, "r": snap})
+out["hist"] = hist
 with open(OUT, "w", encoding="utf-8") as f:
     json.dump(out, f, separators=(",", ":"))
 print(sum(d["mpc"] + d["main"] for d in out["repos"].values()), "downloads")
