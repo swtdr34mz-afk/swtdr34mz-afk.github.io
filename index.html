@@ -175,17 +175,17 @@
   .stats-only{padding-top:0;padding-bottom:clamp(16px,3vw,32px)}
   .stats-only .stats{margin-top:0}
   .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:22px;border:1px solid var(--line);background:var(--panel)}
-  .stats div{padding:22px 10px;text-align:center;border-left:1px solid var(--line)}
+  .stats div{padding:30px 10px;text-align:center;border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
   .stats div:first-child{border-left:0}
   .stats b{display:block;font:800 clamp(28px,5vw,48px)/1 var(--mono);color:#fff;text-shadow:0 0 16px #00f6ff88}
   .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
   .stats .dlbox b{color:var(--cyan)}
   /* live downloads: LED in the box, "+N today", the feed, the 24-hour curve, HOT on the cards */
   .stats .dlbox{position:relative}
-  .stats .lv{position:absolute;top:7px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:6px;margin:0;font:600 9.5px var(--mono);letter-spacing:.2em;color:#3cff7a}
+  .stats .lv{position:absolute;top:9px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:6px;margin:0;font:600 9.5px var(--mono);letter-spacing:.2em;color:#3cff7a}
   .stats .lv i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3cff7a;box-shadow:0 0 8px #3cff7a;animation:led 1.6s ease-in-out infinite}
   @keyframes led{50%{opacity:.25;box-shadow:none}}
-  .stats .today{margin-top:5px;font:11px var(--mono);letter-spacing:.08em;color:#3cff7a;text-transform:none;min-height:1.2em}
+  .stats .today{position:absolute;bottom:8px;left:0;right:0;margin:0;font:11px var(--mono);letter-spacing:.08em;color:#3cff7a;text-transform:none;min-height:1.2em}
   .live{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;margin-top:14px}
   .live .hd{display:flex;justify-content:space-between;gap:10px;font:10.5px var(--mono);letter-spacing:.16em;color:var(--muted);border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px}
   .live .hd .on{color:#3cff7a}.live .hd b{color:var(--cyan);font-weight:600}
