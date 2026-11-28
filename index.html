@@ -365,10 +365,17 @@
   .kofi{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid #ffb627;color:#ffe9bf;background:#000;
       font:600 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:all .2s;flex:none}
   .kofi svg{width:14px;height:12px;color:#ffb627}
+  .dc{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border:1px solid var(--cyan);color:#d6feff;background:#000;
+      font:600 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:all .2s;flex:none;box-shadow:0 0 10px #00f6ff44}
+  .dc svg{width:14px;height:12px;color:var(--cyan)}
+  .dc:hover{background:var(--cyan);color:#000;box-shadow:0 0 16px #00f6ffaa}
+  .dc:hover svg{color:#000}
+  .dc:hover svg circle{fill:var(--cyan)}
   .kofi:hover{background:#ffb627;color:#000;box-shadow:0 0 16px #ffb62788}
   .kofi:hover svg{color:#000}
   .kofi:hover svg path:last-child{fill:#ffb627}
-  @media (max-width:420px){nav{gap:8px}.brand{gap:6px;min-width:0}.brand img.tagsm{height:auto;width:clamp(86px,30vw,130px)}.ext{gap:6px}.yt,.kofi{padding:6px 8px;gap:6px;letter-spacing:.08em}}
+  @media (max-width:420px){nav{gap:8px}.brand{gap:6px;min-width:0}.brand img.tagsm{height:auto;width:clamp(86px,30vw,130px)}.ext{gap:6px}.yt,.kofi,.dc{padding:6px 7px;gap:5px;letter-spacing:.06em}}
+  @media (max-width:520px){.yt,.kofi,.dc{font-size:0;gap:0;padding:0;width:40px;height:34px;justify-content:center}.yt i{border-width:6px 0 6px 10px}.kofi svg,.dc svg{width:17px;height:15px}}
   /* synthwave horizon under section titles */
   .sec-head{position:relative;border-bottom:0 !important;margin-bottom:64px !important}
   .sec-head::before{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
@@ -412,11 +419,11 @@
     <li><a href="#mpc">MPC</a></li>
     <li><a href="#fm1">FM-1</a></li>
     <li><a href="#install">Install</a></li>
-    <li><a href="#community">Discord</a></li>
     <li><a href="https://github.com/swtdr34mz-afk" target="_blank" rel="noopener">GitHub</a></li>
     <li class="m90li"><button class="m90" id="m90" type="button" aria-pressed="false" title="Pop-ups, ICQ and ads like it's 1999"><i></i>90s MODE</button></li>
   </ul>
   <div class="ext">
+  <a class="dc" href="https://discord.gg/QEp8KqBcdG" target="_blank" rel="noopener" title="Join the Discord"><svg viewBox="0 0 16 14" aria-hidden="true"><path d="M2.5 1h11A1.5 1.5 0 0 1 15 2.5v6.5a1.5 1.5 0 0 1-1.5 1.5H7l-3.5 3v-3h-1A1.5 1.5 0 0 1 1 9V2.5A1.5 1.5 0 0 1 2.5 1z" fill="currentColor"/><circle cx="5.3" cy="5.8" r="1.1" fill="#000"/><circle cx="8" cy="5.8" r="1.1" fill="#000"/><circle cx="10.7" cy="5.8" r="1.1" fill="#000"/></svg>Discord</a>
   <a class="kofi" href="https://ko-fi.com/swtdr34mz" target="_blank" rel="noopener" title="Buy me a coffee on Ko-fi"><svg viewBox="0 0 16 14" aria-hidden="true"><path d="M1 3h11v5a4 4 0 0 1-4 4H5a4 4 0 0 1-4-4z" fill="currentColor"/><path d="M12 4.5h1.2a1.8 1.8 0 0 1 0 3.6H12" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6.5 9.6 4.6 7.8a1.1 1.1 0 0 1 1.9-1.4 1.1 1.1 0 0 1 1.9 1.4z" fill="#000"/></svg>Ko-fi</a>
   <a class="yt" href="https://youtube.com/@errorkit" target="_blank" rel="noopener" title="ERROR KIT on YouTube"><i aria-hidden="true"></i>YouTube</a>
   </div>
