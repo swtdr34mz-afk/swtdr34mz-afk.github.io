@@ -181,7 +181,8 @@
   .stats span{display:block;margin-top:8px;font:11px var(--mono);letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
   .stats .dlbox b{color:var(--cyan)}
   /* live downloads: LED in the box, "+N today", the feed, the 24-hour curve, HOT on the cards */
-  .stats .lv{display:inline-flex;align-items:center;gap:6px;margin:0 0 6px;font:600 9.5px var(--mono);letter-spacing:.2em;color:#3cff7a}
+  .stats .dlbox{position:relative}
+  .stats .lv{position:absolute;top:7px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:6px;margin:0;font:600 9.5px var(--mono);letter-spacing:.2em;color:#3cff7a}
   .stats .lv i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3cff7a;box-shadow:0 0 8px #3cff7a;animation:led 1.6s ease-in-out infinite}
   @keyframes led{50%{opacity:.25;box-shadow:none}}
   .stats .today{margin-top:5px;font:11px var(--mono);letter-spacing:.08em;color:#3cff7a;text-transform:none;min-height:1.2em}
