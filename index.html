@@ -63,13 +63,12 @@
   .hero .glow{position:absolute;inset:-25%;border-radius:50%;background:radial-gradient(closest-side,#00f6ff2a,transparent 70%);pointer-events:none}
   #scope{position:absolute;inset:0;width:100%;height:100%;z-index:1}
   .hero h1{margin:0;line-height:0;--k:0;width:min(560px,86vw);
-           transform:scale(calc(1 + var(--k) * .045));
-           filter:drop-shadow(0 0 calc(8px + var(--k) * 22px) #00f6ffaa) drop-shadow(0 0 calc(30px + var(--k) * 30px) #00f6ff55)}
+           filter:drop-shadow(0 0 5px #00f6ff44) drop-shadow(0 0 22px #00f6ff1c)}   /* calm: no pulse, a soft glow */
   .lm,.lm::before,.lm::after{display:block;width:100%;aspect-ratio:900/107;
       -webkit-mask:url(img/tag.png) center/100% 100% no-repeat;mask:url(img/tag.png) center/100% 100% no-repeat}
-  .lm{position:relative;background:linear-gradient(100deg,#fff 0%,#fff 38%,#7ffbff 46%,#00f6ff 50%,#7ffbff 54%,#fff 62%,#fff 100%) 0 0/250% 100%;
-      animation:shine 3.2s linear infinite, glitch 7s steps(1) infinite}
-  .lm::before,.lm::after{content:"";position:absolute;inset:0;opacity:0;animation:split 7s steps(1) infinite}
+  .lm{position:relative;background:linear-gradient(100deg,#9fb0b2 0%,#9fb0b2 40%,#c6e6e8 50%,#9fb0b2 60%,#9fb0b2 100%) 0 0/250% 100%;
+      animation:shine 9s linear infinite}
+  .lm::before,.lm::after{content:"";position:absolute;inset:0;opacity:0}
   .lm::before{background:#00f6ff}
   .lm::after{background:#ff2bd6;animation-name:split2}
   @keyframes shine{from{background-position:100% 0}to{background-position:-150% 0}}
@@ -347,6 +346,9 @@
   /* ---------- logo looks: a different one on every visit ---------- */
   .hero h1{position:relative}
   .lx{position:absolute;inset:0;pointer-events:none}
+  #logo{position:relative}
+  #logo canvas.tron{position:absolute;left:-12px;top:-12px;width:calc(100% + 24px);height:calc(100% + 24px);pointer-events:none;z-index:2}
+  #logo.m-word canvas.tron{display:none}
   .lx i{position:absolute;inset:0;display:block;-webkit-mask:url(img/tag.png) center/100% 100% no-repeat;mask:url(img/tag.png) center/100% 100% no-repeat}
   /* 1 broken neon sign: the tubes are grey when off; each part flickers on its own */
   #logo.m-neon .lm{background:#243032!important;animation:none!important}
@@ -1311,7 +1313,7 @@
       ctx.stroke();
     }
     // the logo pulses with the same beat
-    logo.style.setProperty('--k', kick.toFixed(3));
+    // (the logo no longer pulses with it: calmer)
     requestAnimationFrame(frame);
   };
   size();
@@ -1381,11 +1383,10 @@
     const logo = document.getElementById('logo');
     const lx = document.createElement('div'); lx.className = 'lx'; logo.append(lx);
     const d0 = new Date(), md = (d0.getMonth() + 1) * 100 + d0.getDate();
-    const looks = ['neon', 'vhs', 'pix', ...((md >= 1120 || md <= 106) ? ['xmas'] : [])];
-    let k = 0;
-    try { const last = parseInt(localStorage.getItem('logo-k'), 10); k = Number.isNaN(last) ? Math.floor(Math.random() * looks.length) : (last + 1) % looks.length; localStorage.setItem('logo-k', String(k)); } catch (e) {}
+    // calm: the plain logo; at Christmas (20 Nov - 6 Jan) snow on it and a string of lights that comes on now and then
     const forced = (location.search.match(/[?&]look=([a-z]+)/) || [])[1];
-    const visitLook = forced && ['neon', 'vhs', 'pix', 'xmas', 'word'].includes(forced) ? forced : looks[k];
+    const visitLook = forced && ['plain', 'neon', 'vhs', 'pix', 'xmas', 'word'].includes(forced) ? forced
+                    : (md >= 1120 || md <= 106) ? 'xmas' : 'plain';
     let stop = () => {};
     const tagImg = new Image(); tagImg.src = 'img/tag.png';
 
@@ -1496,12 +1497,6 @@
             const h = (1.6 + Math.abs(Math.sin(x * 70)) * 1.6) * (W / 900);
             g.beginPath(); g.ellipse(ox + x * lw, oy + y * lh - h * .6, W / 900 * 2.2, h, 0, 0, Math.PI * 2); g.fill();
           }
-          // a few flakes drifting down
-          g.fillStyle = '#ffffffcc';
-          for (let i = 0; i < 26; i++) {
-            const sx = ((i * 0.618 + Math.sin(t * .4 + i) * .02) % 1) * W, sy = ((t * (.05 + (i % 5) * .012) + i * .137) % 1) * H;
-            g.beginPath(); g.arc(sx, sy, W / 700 * (1 + i % 3), 0, Math.PI * 2); g.fill();
-          }
           // a string of lights over the logo, swinging a little, bulbs blinking in turns
           const n = 16, sag = lh * .32, top = oy - lh * .38;
           g.strokeStyle = '#2b3a2e'; g.lineWidth = Math.max(1, W / 700);
@@ -1510,23 +1505,67 @@
           g.stroke();
           for (let i = 0; i < n; i++) {
             const u = (i + .5) / n, x = ox + u * lw, y = top + Math.sin(u * Math.PI) * sag + Math.sin(t * 1.3 + u * 6) * lh * .02;
-            const on = (Math.floor(t * 2.2) + i) % 3 !== 0;
-            g.shadowColor = bulbs[i % 4]; g.shadowBlur = on ? W / 60 : 0;
-            g.fillStyle = on ? bulbs[i % 4] : '#3a3a3a';
+            // the lights are off most of the time: every 30 s they fade on for about 8 s, softly in turns
+            const p = (t + 12) % 30, lit = p < 1.5 ? p / 1.5 : p < 8 ? 1 : p < 9.5 ? 1 - (p - 8) / 1.5 : 0;
+            const b = lit * (.6 + .4 * Math.sin(t * 1.6 + i * 2.1));
+            g.fillStyle = '#3a3a3a';
             g.beginPath(); g.ellipse(x, y + lh * .07, W / 260, W / 180, 0, 0, Math.PI * 2); g.fill();
+            if (b > .02) {
+              g.globalAlpha = b; g.shadowColor = bulbs[i % 4]; g.shadowBlur = W / 70; g.fillStyle = bulbs[i % 4];
+              g.beginPath(); g.ellipse(x, y + lh * .07, W / 260, W / 180, 0, 0, Math.PI * 2); g.fill();
+              g.globalAlpha = 1; g.shadowBlur = 0;
+            }
           }
           g.shadowBlur = 0;
         });
       },
       word() { return () => {}; },
+      plain() { return () => {}; },
     };
     const apply = look => {
       stop(); lx.innerHTML = '';
-      logo.classList.remove('m-neon', 'm-vhs', 'm-pix', 'm-xmas', 'm-word');
+      logo.classList.remove('m-neon', 'm-vhs', 'm-pix', 'm-xmas', 'm-word', 'm-plain');
       logo.classList.add('m-' + look);
       stop = setups[look]() || (() => {});
     };
     apply(visitLook);
+    // TRON: now and then a light shoots along the outlines of the letters, like LEDs in the edges
+    ready(() => {
+      const cols = 600, rows = Math.round(cols * 107 / 900), a = sample(cols, rows), edge = [];
+      const op = (x, y) => x >= 0 && y >= 0 && x < cols && y < rows && a[(y * cols + x) * 4 + 3] > 120;
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++)
+        if (op(x, y) && (!op(x - 1, y) || !op(x + 1, y) || !op(x, y - 1) || !op(x, y + 1))) edge.push([x / cols, y / rows]);
+      const c = document.createElement('canvas'); c.className = 'tron'; logo.append(c);
+      const g = c.getContext('2d');
+      const fit = () => { const r = c.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1); c.width = r.width * dpr; c.height = r.height * dpr; };
+      new ResizeObserver(fit).observe(c); fit();
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const run = () => {
+        const dir = Math.random() < .7 ? 1 : -1, t0 = performance.now(), dur = 1500;
+        const step = now => {
+          const W = c.width, H = c.height, pad = 12 * W / (c.getBoundingClientRect().width || 1);
+          const lw = W - 2 * pad, lh = H - 2 * pad, p = (now - t0) / dur;
+          g.clearRect(0, 0, W, H);
+          if (p >= 1) return;
+          const head = -.15 + p * 1.3, sz = Math.max(2.4, lw / 230);
+          g.shadowColor = '#00f6ff'; g.shadowBlur = sz * 3;
+          g.globalCompositeOperation = 'lighter';
+          for (const [ex, ey] of edge) {
+            const x = dir > 0 ? ex : 1 - ex, d = head - x;
+            const v = d < 0 ? Math.exp(-(d * d) / .0009) : Math.exp(-d / .09) * .55 + Math.exp(-(d * d) / .0009) * .45;
+            if (v < .03) continue;
+            g.globalAlpha = Math.min(1, v);
+            g.fillStyle = v > .7 ? '#e9feff' : '#00f6ff';
+            g.fillRect(pad + ex * lw - sz / 2, pad + ey * lh - sz / 2, sz, sz);
+          }
+          g.globalAlpha = 1; g.shadowBlur = 0; g.globalCompositeOperation = 'source-over';
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+        setTimeout(run, 9000 + Math.random() * 9000);
+      };
+      setTimeout(run, 2500);
+    });
     M90.on(() => apply('word'));
     M90.off(() => apply(visitLook));
   }
