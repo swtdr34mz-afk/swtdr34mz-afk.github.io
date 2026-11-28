@@ -137,7 +137,8 @@
   .body p{margin:0;color:var(--muted);font-size:14.5px}
   .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
   .tags span{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:3px 7px;border:1px solid #1d4246;color:#9fe9ec}
-  .actions{display:flex;flex-wrap:wrap;gap:8px}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:6px}
+  .tags ~ .actions{margin-top:0;padding-top:0}   /* with tags: the tags sit at the bottom, the buttons right under them */
   .actions .btn{padding:9px 13px;font-size:11px}
 
   /* ---------- install ---------- */
